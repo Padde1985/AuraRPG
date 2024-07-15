@@ -2,6 +2,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Player/AuraPlayerState.h"
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
+#include "Player/AuraPlayerController.h"
+#include "UI/HUD/AuraHUD.h"
 
 AAuraCharacter::AAuraCharacter()
 {
@@ -15,6 +17,7 @@ AAuraCharacter::AAuraCharacter()
 	bUseControllerRotationYaw = false;
 }
 
+// called by the replication system for the server
 void AAuraCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
@@ -23,6 +26,7 @@ void AAuraCharacter::PossessedBy(AController* NewController)
 	this->InitAbilityActorInfo();
 }
 
+// called by the replication system for the client
 void AAuraCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
@@ -38,4 +42,13 @@ void AAuraCharacter::InitAbilityActorInfo()
 	AuraPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(AuraPlayerState, this);
 	AbilitySystemComponent = AuraPlayerState->GetAbilitySystemComponent();
 	AttributeSet = AuraPlayerState->GetAttributeSet();
+
+	if (AAuraPlayerController* AuraPlayerController = Cast<AAuraPlayerController>(GetController()))
+	{
+		if (AAuraHUD* AuraHUD = Cast<AAuraHUD>(AuraPlayerController->GetHUD()))
+		{
+			AuraHUD->InitOverlay(AuraPlayerController, AuraPlayerState, AbilitySystemComponent, AttributeSet);
+		}
+	}
+
 }
