@@ -43,6 +43,10 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 
 	FEffectProperties Props;
 	this->SetEffectProperties(Data, Props);
+
+	// clamp again, otherwise it will only clamp the displayed value
+	if (Data.EvaluatedData.Attribute == this->GetHealthAttribute()) this->SetHealth(FMath::Clamp(this->GetHealth(), 0.f, this->GetMaxHealth()));
+	if (Data.EvaluatedData.Attribute == this->GetManaAttribute()) this->SetMana(FMath::Clamp(this->GetMana(), 0.f, this->GetMaxMana()));
 }
 
 void UAuraAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const
