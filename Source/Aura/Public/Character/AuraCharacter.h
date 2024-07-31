@@ -13,6 +13,7 @@ public:
 	AAuraCharacter();
 
 	virtual void PossessedBy(AController* NewController) override;
+	virtual int32 GetLevel() override;
 
 protected:
 	virtual void InitAbilityActorInfo() override;
