@@ -28,12 +28,24 @@ USTRUCT() struct FEffectProperties
 	FGameplayEffectContextHandle ContextHandle;
 };
 
+//typedef TBaseStaticDelegateInstance<FGameplayAttribute(), FDefaultDelegateUserPolicy>::FFuncPtr FAttributeFuncPtr; <- "old" C++ syntax specific for FGameplayAttribute() signature
+template<class T> using TStaticFuncPtr = typename TBaseStaticDelegateInstance<T, FDefaultDelegateUserPolicy>::FFuncPtr; // <- new modern style to accept any type of function type signature
+//example:
+// TStaticFuncPtr,float(int32, float, int32)> RandomFunctionPointer;
+// float RandomFunction(int32 I, float F, int32 I2) { return 0.f; }
+// RandomFunctionPointer = RandomFunction
+// float F = RandomFunctionPointer(0.f, 0.f, 0);
+
 UCLASS()
 class AURA_API UAuraAttributeSet : public UAttributeSet
 {
 	GENERATED_BODY()
 	
 public:
+	TMap<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>> TagsToAttributes;
+	// alternative way to write that:
+	//TMap<FGameplayTag, FGameplayAttribute(*)()> TagsToAttributes;
+
 	UAuraAttributeSet();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
