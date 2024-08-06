@@ -17,6 +17,7 @@ void AAuraEffectActor::BeginPlay()
 	Super::BeginPlay();
 }
 
+// apply effect to a specific target
 void AAuraEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> GamePlayEffectClass)
 {
 	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
@@ -31,6 +32,7 @@ void AAuraEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGam
 	TargetASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data);
 }
 
+// trigger effect when overlapping (standing in the flames or walking over a potion)
 void AAuraEffectActor::OnOverlap(AActor* TargetActor)
 {
 	if (this->InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap) this->ApplyEffectToTarget(TargetActor, this->InstantGameplayEffectClass);
@@ -38,6 +40,7 @@ void AAuraEffectActor::OnOverlap(AActor* TargetActor)
 	if (this->InfiniteEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap) this->ApplyEffectToTarget(TargetActor, this->InfiniteGameplayEffectClass);
 }
 
+// trigger effect when leaving the overlapped actor
 void AAuraEffectActor::OnEndOverlap(AActor* TargetActor)
 {
 	if (this->InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnEndOverlap) this->ApplyEffectToTarget(TargetActor, this->InstantGameplayEffectClass);

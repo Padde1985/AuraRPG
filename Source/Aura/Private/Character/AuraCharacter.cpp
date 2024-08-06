@@ -5,6 +5,7 @@
 #include "Player/AuraPlayerController.h"
 #include "UI/HUD/AuraHUD.h"
 
+// set some default values
 AAuraCharacter::AAuraCharacter()
 {
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -24,8 +25,10 @@ void AAuraCharacter::PossessedBy(AController* NewController)
 
 	// Init Ability actor info for the server
 	this->InitAbilityActorInfo();
+	AddCharacterAbilities();
 }
 
+// get the player level for ability value calculation
 int32 AAuraCharacter::GetLevel()
 {
 	const AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
@@ -42,6 +45,7 @@ void AAuraCharacter::OnRep_PlayerState()
 	this->InitAbilityActorInfo();
 }
 
+// initialize default values when starting the game
 void AAuraCharacter::InitAbilityActorInfo()
 {
 	AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();

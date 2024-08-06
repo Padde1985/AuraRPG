@@ -3,6 +3,7 @@
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "GameplayEffectTypes.h"
 
+// broadcast initial values for Mana and Health
 void UOverlayWidgetController::BroadcastInitialValues()
 {
 	const UAuraAttributeSet* Set = CastChecked<UAuraAttributeSet>(AttributeSet);
@@ -14,6 +15,7 @@ void UOverlayWidgetController::BroadcastInitialValues()
 	this->OnMaxManaChanged.Broadcast(Set->GetMaxMana());
 }
 
+// bind callbacks for vital attributes and also bind callback to item pickup
 void UOverlayWidgetController::BindCallbacksToDependencies()
 {
 	const UAuraAttributeSet* Set = CastChecked<UAuraAttributeSet>(AttributeSet);

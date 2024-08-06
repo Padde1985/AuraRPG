@@ -3,6 +3,7 @@
 #include "AbilitySystem/Data/AttributeInfo.h"
 #include "AuraGameplayTags.h"
 
+// broadcast initial values to be displayed in attribute menu
 void UAttributeMenuWidgetController::BroadcastInitialValues()
 {
 	UAuraAttributeSet* AS = CastChecked<UAuraAttributeSet>(AttributeSet);
@@ -16,6 +17,7 @@ void UAttributeMenuWidgetController::BroadcastInitialValues()
 	}
 }
 
+// call lambda function to update values when changed
 void UAttributeMenuWidgetController::BindCallbacksToDependencies()
 {
 	UAuraAttributeSet* AS = CastChecked<UAuraAttributeSet>(AttributeSet);
@@ -30,9 +32,10 @@ void UAttributeMenuWidgetController::BindCallbacksToDependencies()
 	}
 }
 
+// get value for attribute corresponding to tag and broadcast that information
 void UAttributeMenuWidgetController::BroadcastAttributeInfo(const FGameplayTag& AttributeTag, const FGameplayAttribute& Attribute) const
 {
-	FAuraAttributeInfo Info = this->AttributeInfo->FindAttributeInfoForTag(AttributeTag);
+	FAuraAttributeInfo Info = AttributeInfo->FindAttributeInfoForTag(AttributeTag);
 	Info.AttributeValue = Attribute.GetNumericValue(AttributeSet);
-	this->AttributeInfoDelegate.Broadcast(Info);
+	AttributeInfoDelegate.Broadcast(Info);
 }

@@ -13,23 +13,27 @@ AAuraEnemy::AAuraEnemy()
 	AttributeSet = CreateDefaultSubobject<UAuraAttributeSet>("AttributeSet");
 }
 
+// highlight actor on mouse over
 void AAuraEnemy::HighlightActor()
 {
 	GetMesh()->SetRenderCustomDepth(true);
 	Weapon->SetRenderCustomDepth(true);
 }
 
+// remove red frame around actor when mouse over is finished
 void AAuraEnemy::UnHighlightActor()
 {
 	GetMesh()->SetRenderCustomDepth(false);
 	Weapon->SetRenderCustomDepth(false);
 }
 
+// get the enemy level
 int32 AAuraEnemy::GetLevel()
 {
 	return this->EnemyLevel;
 }
 
+// set custom depth stencil to create the red frame around an enemy
 void AAuraEnemy::BeginPlay()
 {
 	Super::BeginPlay();
@@ -40,6 +44,7 @@ void AAuraEnemy::BeginPlay()
 	this->InitAbilityActorInfo();
 }
 
+// set controll params
 void AAuraEnemy::InitAbilityActorInfo()
 {
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
