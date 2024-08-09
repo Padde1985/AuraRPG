@@ -45,6 +45,8 @@ void AAuraPlayerController::SetupInputComponent()
 
 	UAuraInputComponent* AuraInputComponent = CastChecked<UAuraInputComponent>(InputComponent);
 	AuraInputComponent->BindAction(this->MoveAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Move);
+	AuraInputComponent->BindAction(this->ShiftAction, ETriggerEvent::Started, this, &AAuraPlayerController::ShiftPressed);
+	AuraInputComponent->BindAction(this->ShiftAction, ETriggerEvent::Completed, this, &AAuraPlayerController::ShiftReleased);
 	AuraInputComponent->BindAbilityActions(this->InputConfig, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
 }
 
@@ -72,6 +74,16 @@ void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
 		ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.X);
 		ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.Y);
 	}
+}
+
+void AAuraPlayerController::ShiftPressed()
+{
+	this->bShiftDown = true;
+}
+
+void AAuraPlayerController::ShiftReleased()
+{
+	this->bShiftDown = false;
 }
 
 // trace object under cursor and check what has to be highlighted and unhighlighted
@@ -124,12 +136,10 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 		return;
 	}
 
-	if (this->bTargeting)
-	{
-		if (this->GetASC())	this->GetASC()->AbilityInputTagReleased(InputTag);
-	}
+	if (this->GetASC())	this->GetASC()->AbilityInputTagReleased(InputTag);
+
 	// configuring auto run
-	else
+	if (!this->bTargeting && !this->bShiftDown)
 	{
 		APawn* ControlledPawn = GetPawn();
 		if (this->FollowTime <= this->ShortPressThreshold && ControlledPawn)
@@ -162,7 +172,7 @@ void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 	}
 	
 	// otherwise check if mouse cursor is over an enemy
-	if (this->bTargeting)
+	if (this->bTargeting || this->bShiftDown)
 	{
 		if (this->GetASC())	this->GetASC()->AbilityInputTagHeld(InputTag);
 	}

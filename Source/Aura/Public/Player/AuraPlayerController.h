@@ -31,6 +31,7 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true")) TObjectPtr<UInputMappingContext> AuraContext;
 	UPROPERTY(VisibleAnywhere) TObjectPtr<USplineComponent> Spline;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true")) UInputAction* MoveAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true")) UInputAction* ShiftAction;
 	UPROPERTY(EditDefaultsOnly, Category = "Input") TObjectPtr<UAuraInputConfig> InputConfig;
 	UPROPERTY() TObjectPtr<UAuraAbilitySystemComponent> AuraAbilitySystemComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true")) float AutoRunAcceptanceRadius = 50.f;
@@ -42,9 +43,12 @@ private:
 	float ShortPressThreshold = 0.5f;
 	bool bAutoRunning = false;
 	bool bTargeting = false;
+	bool bShiftDown = false;
 	FHitResult CursorHit;
 
 	void Move(const FInputActionValue& InputActionValue);
+	void ShiftPressed();
+	void ShiftReleased();
 	void CursorTrace();
 	void AbilityInputTagPressed(FGameplayTag InputTag);
 	void AbilityInputTagReleased(FGameplayTag InputTag);

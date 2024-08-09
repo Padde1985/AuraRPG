@@ -1,6 +1,13 @@
 #include "Actor/AuraProjectile.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
+#include "Kismet/GameplayStatics.h"
+#include "Components/AudioComponent.h"
+#include "../Aura.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 
 // Sets default values
 AAuraProjectile::AAuraProjectile()
@@ -14,6 +21,7 @@ AAuraProjectile::AAuraProjectile()
 	this->Sphere->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap);
 	this->Sphere->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Overlap);
 	this->Sphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	this->Sphere->SetCollisionObjectType(ECC_Projectile);
 	SetRootComponent(this->Sphere);
 
 	this->ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>("Projectile Movement");
@@ -22,15 +30,49 @@ AAuraProjectile::AAuraProjectile()
 	this->ProjectileMovement->ProjectileGravityScale = 0.f; // disable gravity
 }
 
+void AAuraProjectile::Destroyed()
+{
+	// in case of client -> handle sound and impact effect before actually destroying the object and avoid calling the overlap event
+	if (!this->bHit && !HasAuthority())
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, this->ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
+		this->FlySoundComponent->Stop();
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, this->ImpactEffect, GetActorLocation());
+	}
+	Super::Destroyed();
+}
+
 // Called when the game starts or when spawned
 void AAuraProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SetLifeSpan(this->LifeSpan);
+
 	this->Sphere->OnComponentBeginOverlap.AddDynamic(this, &AAuraProjectile::OnSphereOverlap);
+	this->FlySoundComponent = UGameplayStatics::SpawnSoundAttached(this->FlySound, GetRootComponent());
 }
 
 void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	UGameplayStatics::PlaySoundAtLocation(this, this->ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
+	this->FlySoundComponent->Stop();
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, this->ImpactEffect, GetActorLocation());
+
+	// if server -> destory the object
+	if (HasAuthority())
+	{
+		if (UAbilitySystemComponent * TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor))
+		{
+			TargetASC->ApplyGameplayEffectSpecToSelf(*this->DamageEffectSpecHandle.Data.Get());
+		}
+
+		Destroy();
+	}
+	// if client -> just set a parameter that the overlap event was fired
+	else
+	{
+		this->bHit = true;
+	}
 }
 
