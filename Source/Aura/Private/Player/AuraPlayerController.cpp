@@ -8,6 +8,8 @@
 #include "Components/SplineComponent.h"
 #include "NavigationSystem.h"
 #include "NavigationPath.h"
+#include "UI/Widget/DamageTextComponent.h"
+#include "GameFramework/Character.h"
 
 // enable replication for mulitplayer
 AAuraPlayerController::AAuraPlayerController()
@@ -15,6 +17,18 @@ AAuraPlayerController::AAuraPlayerController()
 	bReplicates = true;
 
 	this->Spline = CreateDefaultSubobject<USplineComponent>("Spline"); // path finding
+}
+
+void AAuraPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter)
+{
+	if (IsValid(TargetCharacter) && this->DamageTextComponentClass) //IsValid also checks for pending kill and other stuff
+	{
+		UDamageTextComponent* DamageText = NewObject<UDamageTextComponent>(TargetCharacter, this->DamageTextComponentClass);
+		DamageText->RegisterComponent();
+		DamageText->AttachToComponent(TargetCharacter->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		DamageText->SetDamageText(DamageAmount);
+		DamageText->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+	}
 }
 
 // set some default values like mouse cursor behavior

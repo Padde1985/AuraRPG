@@ -67,35 +67,40 @@ public:
 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, CritResistance);
 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, HealthRegeneration);
 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, ManaRegeneration);
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, IncomingDamage);
 
-private:
 	/*
 	* Vital Attributes
 	*/
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Vital Attributes", meta = (AllowPrivateAccess = "true"), ReplicatedUsing = OnRep_Health) FGameplayAttributeData Health;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Vital Attributes", meta = (AllowPrivateAccess = "true"), ReplicatedUsing = OnRep_Mana) FGameplayAttributeData Mana;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Vital Attributes", ReplicatedUsing = OnRep_Health) FGameplayAttributeData Health;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Vital Attributes", ReplicatedUsing = OnRep_Mana) FGameplayAttributeData Mana;
+
+	/*
+	* Meta Attributes
+	*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meta Attributes") FGameplayAttributeData IncomingDamage;
 
 	/*
 	* Primary Attributes
 	*/
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Primary Attributes", meta = (AllowPrivateAccess = "true"), ReplicatedUsing = OnRep_Strength) FGameplayAttributeData Strength;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Primary Attributes", meta = (AllowPrivateAccess = "true"), ReplicatedUsing = OnRep_Intelligence) FGameplayAttributeData Intelligence;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Primary Attributes", meta = (AllowPrivateAccess = "true"), ReplicatedUsing = OnRep_Resilience) FGameplayAttributeData Resilience;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Primary Attributes", meta = (AllowPrivateAccess = "true"), ReplicatedUsing = OnRep_Vigor) FGameplayAttributeData Vigor;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Primary Attributes", ReplicatedUsing = OnRep_Strength) FGameplayAttributeData Strength;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Primary Attributes", ReplicatedUsing = OnRep_Intelligence) FGameplayAttributeData Intelligence;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Primary Attributes", ReplicatedUsing = OnRep_Resilience) FGameplayAttributeData Resilience;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Primary Attributes", ReplicatedUsing = OnRep_Vigor) FGameplayAttributeData Vigor;
 
 	/*
 	* Secondary Attributes
 	*/
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Secondary Attributes", meta = (AllowPrivateAccess = "true"), ReplicatedUsing = OnRep_Armor) FGameplayAttributeData Armor;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Secondary Attributes", meta = (AllowPrivateAccess = "true"), ReplicatedUsing = OnRep_ArmorPenetration) FGameplayAttributeData ArmorPenetration;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Secondary Attributes", meta = (AllowPrivateAccess = "true"), ReplicatedUsing = OnRep_BlockChance) FGameplayAttributeData BlockChance;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Secondary Attributes", meta = (AllowPrivateAccess = "true"), ReplicatedUsing = OnRep_CritChance) FGameplayAttributeData CritChance;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Secondary Attributes", meta = (AllowPrivateAccess = "true"), ReplicatedUsing = OnRep_CritDamage) FGameplayAttributeData CritDamage;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Secondary Attributes", meta = (AllowPrivateAccess = "true"), ReplicatedUsing = OnRep_CritResistance) FGameplayAttributeData CritResistance;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Secondary Attributes", meta = (AllowPrivateAccess = "true"), ReplicatedUsing = OnRep_HealthRegeneration) FGameplayAttributeData HealthRegeneration;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Secondary Attributes", meta = (AllowPrivateAccess = "true"), ReplicatedUsing = OnRep_ManaRegeneration) FGameplayAttributeData ManaRegeneration;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Secondary Attributes", meta = (AllowPrivateAccess = "true"), ReplicatedUsing = OnRep_MaxHealth) FGameplayAttributeData MaxHealth;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Secondary Attributes", meta = (AllowPrivateAccess = "true"), ReplicatedUsing = OnRep_MaxMana) FGameplayAttributeData MaxMana;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Secondary Attributes", ReplicatedUsing = OnRep_Armor) FGameplayAttributeData Armor;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Secondary Attributes", ReplicatedUsing = OnRep_ArmorPenetration) FGameplayAttributeData ArmorPenetration;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Secondary Attributes", ReplicatedUsing = OnRep_BlockChance) FGameplayAttributeData BlockChance;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Secondary Attributes", ReplicatedUsing = OnRep_CritChance) FGameplayAttributeData CritChance;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Secondary Attributes", ReplicatedUsing = OnRep_CritDamage) FGameplayAttributeData CritDamage;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Secondary Attributes", ReplicatedUsing = OnRep_CritResistance) FGameplayAttributeData CritResistance;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Secondary Attributes", ReplicatedUsing = OnRep_HealthRegeneration) FGameplayAttributeData HealthRegeneration;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Secondary Attributes", ReplicatedUsing = OnRep_ManaRegeneration) FGameplayAttributeData ManaRegeneration;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Secondary Attributes", ReplicatedUsing = OnRep_MaxHealth) FGameplayAttributeData MaxHealth;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Secondary Attributes", ReplicatedUsing = OnRep_MaxMana) FGameplayAttributeData MaxMana;
 
 	UFUNCTION() void OnRep_Health(const FGameplayAttributeData& OldHealth) const;
 	UFUNCTION() void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth) const;
@@ -114,5 +119,7 @@ private:
 	UFUNCTION() void OnRep_HealthRegeneration(const FGameplayAttributeData& OldHealthRegeneration) const;
 	UFUNCTION() void OnRep_ManaRegeneration(const FGameplayAttributeData& OldManaRegeneration) const;
 	
+private:
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const;
+	void ShowFloatingText(const FEffectProperties& Props, float Damage) const;
 };

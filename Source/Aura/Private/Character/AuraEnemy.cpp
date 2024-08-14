@@ -5,6 +5,8 @@
 #include "Components/WidgetComponent.h"
 #include "UI/Widget/AuraUserWidget.h"
 #include "AbilitySystem/AuraAbilitysystemLibrary.h"
+#include "AuraGameplayTags.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 AAuraEnemy::AAuraEnemy()
 {
@@ -44,10 +46,14 @@ void AAuraEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
+	GetCharacterMovement()->MaxWalkSpeed = this->BaseWalkSpeed;
+
 	GetMesh()->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
 	Weapon->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
 
 	this->InitAbilityActorInfo();
+
+	UAuraAbilitysystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent);
 
 	if (UAuraUserWidget* AuraUserWidget = Cast<UAuraUserWidget>(this->HealthBar->GetUserWidgetObject())) AuraUserWidget->SetWidgetController(this);
 
@@ -65,10 +71,24 @@ void AAuraEnemy::BeginPlay()
 				OnMaxHealthChanged.Broadcast(Data.NewValue);
 			}
 		);
+		AbilitySystemComponent->RegisterGameplayTagEvent(FAuraGameplayTags::Get().Effects_HitReact, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AAuraEnemy::HitReactTagChanged);
 
 		this->OnHealthChanged.Broadcast(AS->GetHealth());
 		this->OnMaxHealthChanged.Broadcast(AS->GetMaxHealth());
 	}
+}
+
+void AAuraEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	this->bHitReacting = NewCount > 0;
+	GetCharacterMovement()->MaxWalkSpeed = this->bHitReacting ? 0.f : this->BaseWalkSpeed;
+}
+
+void AAuraEnemy::Die()
+{
+	SetLifeSpan(this->LifeSpan);
+
+	Super::Die();
 }
 
 // set controll params

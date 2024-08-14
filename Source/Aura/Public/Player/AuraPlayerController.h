@@ -11,6 +11,7 @@ class IEnemyInterface;
 class UAuraInputConfig;
 class UAuraAbilitySystemComponent;
 class USplineComponent;
+class UDamageTextComponent;
 
 struct FInputActionValue;
 
@@ -21,6 +22,8 @@ class AURA_API AAuraPlayerController : public APlayerController
 
 public:
 	AAuraPlayerController();
+
+	UFUNCTION(Client, Reliable) void ShowDamageNumber(float DamageAmount, ACharacter* TargetCharacter);
 
 protected:
 	virtual void BeginPlay() override;
@@ -35,9 +38,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Input") TObjectPtr<UAuraInputConfig> InputConfig;
 	UPROPERTY() TObjectPtr<UAuraAbilitySystemComponent> AuraAbilitySystemComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true")) float AutoRunAcceptanceRadius = 50.f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "", meta = (AllowPrivateAccess = "true"))TSubclassOf<UDamageTextComponent> DamageTextComponentClass;
+
 	TScriptInterface<IEnemyInterface> LastActor; // TObjectPrt is only used for Objects, not interfaces
 	TScriptInterface<IEnemyInterface> ThisActor;
-
 	FVector CachedDestination = FVector::ZeroVector;
 	float FollowTime = 0.f;
 	float ShortPressThreshold = 0.5f;

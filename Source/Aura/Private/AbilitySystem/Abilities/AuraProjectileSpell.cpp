@@ -3,6 +3,7 @@
 #include "Interaction/CombatInterface.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "AuraGameplayTags.h"
 
 void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocation)
 {
@@ -25,6 +26,11 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
 		
 		const UAbilitySystemComponent* SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
 		const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(this->DamageEffectClass, GetAbilityLevel(), SourceASC->MakeEffectContext());
+		const FAuraGameplayTags GameplayTags = FAuraGameplayTags::Get();
+		// get scaled damage from curve table for a given level
+		const float ScaledDamage = Damage.GetValueAtLevel(GetAbilityLevel());
+		// set damage for a specific tag (in this case "Damage")
+		UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Damage, ScaledDamage);
 		Projectile->DamageEffectSpecHandle = SpecHandle;
 
 		Projectile->FinishSpawning(SpawnTransform); //has to be called due to using ActorDeferred

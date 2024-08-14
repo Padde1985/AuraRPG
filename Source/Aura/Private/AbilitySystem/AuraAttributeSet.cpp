@@ -4,6 +4,8 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "GameFramework/Character.h"
 #include "AuraGameplayTags.h"
+#include "Interaction/CombatInterface.h"
+#include "Player/AuraPlayerController.h"
 
 // assign gameplay tags to each attribute
 UAuraAttributeSet::UAuraAttributeSet()
@@ -78,6 +80,48 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	// clamp again, otherwise it will only clamp the displayed value
 	if (Data.EvaluatedData.Attribute == this->GetHealthAttribute()) this->SetHealth(FMath::Clamp(this->GetHealth(), 0.f, this->GetMaxHealth()));
 	if (Data.EvaluatedData.Attribute == this->GetManaAttribute()) this->SetMana(FMath::Clamp(this->GetMana(), 0.f, this->GetMaxMana()));
+
+	// handle meta attribute for incoming damage
+	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
+	{
+		const float LocalIncomingDamage = GetIncomingDamage();
+		this->SetIncomingDamage(0.f);
+		if (LocalIncomingDamage > 0.f)
+		{
+			const float NewHealth = this->GetHealth() - LocalIncomingDamage;
+			this->SetHealth(FMath::Clamp(NewHealth, 0.f, this->GetMaxHealth()));
+
+			const bool bFatal = NewHealth <= 0.f;
+			if (!bFatal)
+			{
+				FGameplayTagContainer TagContainer;
+				TagContainer.AddTag(FAuraGameplayTags::Get().Effects_HitReact);
+				Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+			}
+			else
+			{
+				ICombatInterface* CombatInterface = Cast<ICombatInterface>(Props.TargetAvatarActor);
+				if (CombatInterface)
+				{
+					CombatInterface->Die();
+				}
+			}
+
+			this->ShowFloatingText(Props, LocalIncomingDamage);
+		}
+	}
+}
+
+void UAuraAttributeSet::ShowFloatingText(const FEffectProperties& Props, float Damage) const
+{
+	if (Props.SourceCharacter != Props.TargetCharacter)
+	{
+		if (AAuraPlayerController* PlayerController = Cast<AAuraPlayerController>(Props.SourceCharacter->Controller))
+		{
+			PlayerController->ShowDamageNumber(Damage, Props.TargetCharacter);
+		}
+	}
+
 }
 
 // define the effect properties (who is triggering the effect, to whom is it apllied to, etc.)

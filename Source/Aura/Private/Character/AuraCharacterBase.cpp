@@ -3,6 +3,7 @@
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "../Aura.h"
+#include "Animation/AnimMontage.h"
 
 // Sets default values
 AAuraCharacterBase::AAuraCharacterBase()
@@ -36,6 +37,34 @@ FVector AAuraCharacterBase::GetCombatSocketLocation()
 {
 	check(this->Weapon);
 	return this->Weapon->GetSocketLocation(this->WeaponTipSocketName);
+}
+
+UAnimMontage* AAuraCharacterBase::GetHitReactMontage_Implementation()
+{
+	return this->HitReactMontage;
+}
+
+void AAuraCharacterBase::Die()
+{
+	this->Weapon->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
+	this->MulitcastHandleDeath();
+}
+
+// _Implementation for Multicast functions required
+void AAuraCharacterBase::MulitcastHandleDeath_Implementation()
+{
+	this->Weapon->SetSimulatePhysics(true);
+	this->Weapon->SetEnableGravity(true);
+	this->Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->SetEnableGravity(true);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+	
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	this->Dissolve();
 }
 
 // Called when the game starts or when spawned
@@ -75,5 +104,22 @@ void AAuraCharacterBase::AddCharacterAbilities()
 
 	UAuraAbilitySystemComponent* AuraASC = CastChecked<UAuraAbilitySystemComponent>(this->AbilitySystemComponent);
 	AuraASC->AddCharacterAbilities(this->StartupAbilities);
+}
+
+void AAuraCharacterBase::Dissolve()
+{
+	if (IsValid(this->DissolveMaterialInstance))
+	{
+		UMaterialInstanceDynamic* DynamicMatInst = UMaterialInstanceDynamic::Create(this->DissolveMaterialInstance, this);
+		GetMesh()->SetMaterial(0, DynamicMatInst);
+		this->StartDissolveTimeline(DynamicMatInst);
+	}
+
+	if (IsValid(this->WeaponDissolveMaterialInstance))
+	{
+		UMaterialInstanceDynamic* DynamicMatInst = UMaterialInstanceDynamic::Create(this->WeaponDissolveMaterialInstance, this);
+		this->Weapon->SetMaterial(0, DynamicMatInst);
+		this->StartWeaponDissolveTimeline(DynamicMatInst);
+	}
 }
 
