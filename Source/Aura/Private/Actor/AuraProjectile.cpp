@@ -36,7 +36,7 @@ void AAuraProjectile::Destroyed()
 	if (!this->bHit && !HasAuthority())
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, this->ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
-		this->FlySoundComponent->Stop();
+		if(this->FlySoundComponent) this->FlySoundComponent->Stop();
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, this->ImpactEffect, GetActorLocation());
 	}
 	Super::Destroyed();
@@ -55,11 +55,16 @@ void AAuraProjectile::BeginPlay()
 
 void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UGameplayStatics::PlaySoundAtLocation(this, this->ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
-	this->FlySoundComponent->Stop();
-	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, this->ImpactEffect, GetActorLocation());
+	if (DamageEffectSpecHandle.Data.IsValid() && DamageEffectSpecHandle.Data.Get()->GetContext().GetEffectCauser() == OtherActor) return;
 
-	// if server -> destory the object
+	if (!this->bHit)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, this->ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
+		if (this->FlySoundComponent) this->FlySoundComponent->Stop();
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, this->ImpactEffect, GetActorLocation());
+	}
+
+	// if server -> destroy the object when the server player launched the spell
 	if (HasAuthority())
 	{
 		if (UAbilitySystemComponent * TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor))

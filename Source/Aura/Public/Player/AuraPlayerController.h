@@ -23,7 +23,7 @@ class AURA_API AAuraPlayerController : public APlayerController
 public:
 	AAuraPlayerController();
 
-	UFUNCTION(Client, Reliable) void ShowDamageNumber(float DamageAmount, ACharacter* TargetCharacter);
+	UFUNCTION(Client, Reliable) void ShowDamageNumber(float DamageAmount, ACharacter* TargetCharacter, bool bIsBlocked, bool bIsCritical);
 
 protected:
 	virtual void BeginPlay() override;

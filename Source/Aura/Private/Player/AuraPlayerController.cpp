@@ -19,14 +19,15 @@ AAuraPlayerController::AAuraPlayerController()
 	this->Spline = CreateDefaultSubobject<USplineComponent>("Spline"); // path finding
 }
 
-void AAuraPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter)
+void AAuraPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter, bool bIsBlocked, bool bIsCritical)
 {
-	if (IsValid(TargetCharacter) && this->DamageTextComponentClass) //IsValid also checks for pending kill and other stuff
+	//IsValid also checks for pending kill and other stuff
+	if (IsValid(TargetCharacter) && this->DamageTextComponentClass && IsLocalController()) // IsLocalController makes sure that we spawn floating texts only for the casting source controller
 	{
 		UDamageTextComponent* DamageText = NewObject<UDamageTextComponent>(TargetCharacter, this->DamageTextComponentClass);
 		DamageText->RegisterComponent();
 		DamageText->AttachToComponent(TargetCharacter->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-		DamageText->SetDamageText(DamageAmount);
+		DamageText->SetDamageText(DamageAmount, bIsBlocked, bIsCritical);
 		DamageText->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 	}
 }

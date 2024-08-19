@@ -53,7 +53,7 @@ void AAuraEnemy::BeginPlay()
 
 	this->InitAbilityActorInfo();
 
-	UAuraAbilitysystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent);
+	if(HasAuthority()) UAuraAbilitysystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent);
 
 	if (UAuraUserWidget* AuraUserWidget = Cast<UAuraUserWidget>(this->HealthBar->GetUserWidgetObject())) AuraUserWidget->SetWidgetController(this);
 
@@ -97,7 +97,8 @@ void AAuraEnemy::InitAbilityActorInfo()
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
 
-	InitializeDefaultAttributes();
+	// do that only on the server
+	if(HasAuthority()) InitializeDefaultAttributes();
 }
 
 void AAuraEnemy::InitializeDefaultAttributes() const
