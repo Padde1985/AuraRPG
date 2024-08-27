@@ -7,6 +7,9 @@
 #include "AbilitySystem/AuraAbilitysystemLibrary.h"
 #include "AuraGameplayTags.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "AI/AuraAIController.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "BehaviorTree/BehaviorTree.h"
 
 AAuraEnemy::AAuraEnemy()
 {
@@ -19,6 +22,12 @@ AAuraEnemy::AAuraEnemy()
 
 	this->HealthBar = CreateDefaultSubobject<UWidgetComponent>("Health Bar");
 	this->HealthBar->SetupAttachment(GetRootComponent());
+
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
+	bUseControllerRotationYaw = false;
+
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
 }
 
 // highlight actor on mouse over
@@ -82,6 +91,7 @@ void AAuraEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCou
 {
 	this->bHitReacting = NewCount > 0;
 	GetCharacterMovement()->MaxWalkSpeed = this->bHitReacting ? 0.f : this->BaseWalkSpeed;
+	this->AIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), this->bHitReacting);
 }
 
 void AAuraEnemy::Die()
@@ -89,6 +99,19 @@ void AAuraEnemy::Die()
 	SetLifeSpan(this->LifeSpan);
 
 	Super::Die();
+}
+
+void AAuraEnemy::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	if (!HasAuthority()) return;
+
+	this->AIController = Cast<AAuraAIController>(NewController);
+	this->AIController->GetBlackboardComponent()->InitializeBlackboard(*this->BehaviorTree->BlackboardAsset);
+	this->AIController->RunBehaviorTree(this->BehaviorTree);
+	this->AIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), false);
+	this->AIController->GetBlackboardComponent()->SetValueAsBool(FName("RangedAttacker"), this->CharacterClass != ECharacterClass::Warrior); // everything besides a warrior is a ranged attacker
 }
 
 // set controll params

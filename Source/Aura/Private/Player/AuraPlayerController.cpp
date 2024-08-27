@@ -167,8 +167,11 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 					this->Spline->AddSplinePoint(PointLoc, ESplineCoordinateSpace::World);
 				}
 				// reset Cached Destination to avoid infinite auro running when clicking on an area outside of the Nav Mesh volume
-				this->CachedDestination = NavPath->PathPoints[NavPath->PathPoints.Num() - 1];
-				this->bAutoRunning = true;
+				if (NavPath->PathPoints.Num() > 0)
+				{
+					this->CachedDestination = NavPath->PathPoints[NavPath->PathPoints.Num() - 1];
+					this->bAutoRunning = true;
+				}
 			}
 		}
 		this->FollowTime = 0.f;

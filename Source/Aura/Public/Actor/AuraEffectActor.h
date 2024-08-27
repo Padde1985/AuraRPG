@@ -21,6 +21,13 @@ enum class EEffectRemovalPolicy : uint8
 	DoNotRemove UMETA(DisplayName = "Do not remove")
 };
 
+UENUM(BlueprintType)
+enum class EActorDestroyPolicy : uint8
+{
+	DestroyOnEndOverlap UMETA(DisplayName = "Destroy on End Overlap"),
+	DoNotDestroy UMETA(DisplayName = "Do not destroy")
+};
+
 UCLASS()
 class AURA_API AAuraEffectActor : public AActor
 {
@@ -41,7 +48,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effect", meta = (AllowPrivateAccess = "true")) EEffectApplicationPolicy DurationEffectApplicationPolicy = EEffectApplicationPolicy::DoNotApply;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effect", meta = (AllowPrivateAccess = "true")) EEffectApplicationPolicy InfiniteEffectApplicationPolicy = EEffectApplicationPolicy::DoNotApply;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effect", meta = (AllowPrivateAccess = "true")) EEffectRemovalPolicy InfiniteEffectRemovalPolicy = EEffectRemovalPolicy::RemoveOnEndOverlap;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effect", meta = (AllowPrivateAccess = "true")) bool bDestroyOnEffectRemoval = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effect", meta = (AllowPrivateAccess = "true")) EActorDestroyPolicy DestroyPolicy = EActorDestroyPolicy::DestroyOnEndOverlap;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effect", meta = (AllowPrivateAccess = "true")) bool bApplyEffectsToEnemies = false;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effect", meta = (AllowPrivateAccess = "true")) float ActorLevel = 1.f;
 
 	UFUNCTION(BlueprintCallable) void ApplyEffectToTarget(AActor* TargetActor, TSubclassOf< UGameplayEffect> GamePlayEffectClass);
