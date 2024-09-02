@@ -62,7 +62,7 @@ void AAuraEnemy::BeginPlay()
 
 	this->InitAbilityActorInfo();
 
-	if(HasAuthority()) UAuraAbilitysystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent);
+	if(HasAuthority()) UAuraAbilitysystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent, this->CharacterClass);
 
 	if (UAuraUserWidget* AuraUserWidget = Cast<UAuraUserWidget>(this->HealthBar->GetUserWidgetObject())) AuraUserWidget->SetWidgetController(this);
 
@@ -91,7 +91,7 @@ void AAuraEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCou
 {
 	this->bHitReacting = NewCount > 0;
 	GetCharacterMovement()->MaxWalkSpeed = this->bHitReacting ? 0.f : this->BaseWalkSpeed;
-	this->AIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), this->bHitReacting);
+	if(this->AIController && this->AIController->GetBlackboardComponent()) this->AIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), this->bHitReacting);
 }
 
 void AAuraEnemy::Die()
@@ -112,6 +112,16 @@ void AAuraEnemy::PossessedBy(AController* NewController)
 	this->AIController->RunBehaviorTree(this->BehaviorTree);
 	this->AIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), false);
 	this->AIController->GetBlackboardComponent()->SetValueAsBool(FName("RangedAttacker"), this->CharacterClass != ECharacterClass::Warrior); // everything besides a warrior is a ranged attacker
+}
+
+void AAuraEnemy::SetCombatTarget_Implementation(AActor* InCombatTarget)
+{
+	this->CombatTarget = InCombatTarget;
+}
+
+AActor* AAuraEnemy::GetCombatTarget_Implementation() const
+{
+	return this->CombatTarget;
 }
 
 // set controll params

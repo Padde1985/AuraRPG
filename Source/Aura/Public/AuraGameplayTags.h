@@ -39,6 +39,12 @@ public:
 	FGameplayTag Damage_Physical;
 	TMap<FGameplayTag, FGameplayTag> DamageTypesToResistances;
 
+	FGameplayTag Abilities_Attack;
+
+	FGameplayTag Montage_Attack_Weapon;
+	FGameplayTag Montage_Attack_RightHand;
+	FGameplayTag Montage_Attack_LeftHand;
+
 	FGameplayTag Effects_HitReact;
 
 	static const FAuraGameplayTags& Get();

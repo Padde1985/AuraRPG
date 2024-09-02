@@ -4,6 +4,7 @@
 #include "Components/CapsuleComponent.h"
 #include "../Aura.h"
 #include "Animation/AnimMontage.h"
+#include "AuraGameplayTags.h"
 
 // Sets default values
 AAuraCharacterBase::AAuraCharacterBase()
@@ -33,10 +34,23 @@ UAttributeSet* AAuraCharacterBase::GetAttributeSet() const
 	return this->AttributeSet;
 }
 
-FVector AAuraCharacterBase::GetCombatSocketLocation()
+FVector AAuraCharacterBase::GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag)
 {
-	check(this->Weapon);
-	return this->Weapon->GetSocketLocation(this->WeaponTipSocketName);
+	//TODO: return correct socket based on MontageTag
+	const FAuraGameplayTags& GameplayTags = FAuraGameplayTags::Get();
+	if (MontageTag.MatchesTagExact(GameplayTags.Montage_Attack_Weapon) && IsValid(this->Weapon))
+	{
+		return this->Weapon->GetSocketLocation(this->WeaponTipSocketName);
+	}
+	if (MontageTag.MatchesTagExact(GameplayTags.Montage_Attack_LeftHand))
+	{
+		return GetMesh()->GetSocketLocation(this->LeftHandSocketName);
+	}
+	if (MontageTag.MatchesTagExact(GameplayTags.Montage_Attack_RightHand))
+	{
+		return this->Weapon->GetSocketLocation(this->RightHandSocketName);
+	}
+	return FVector::ZeroVector;
 }
 
 UAnimMontage* AAuraCharacterBase::GetHitReactMontage_Implementation()
@@ -48,6 +62,21 @@ void AAuraCharacterBase::Die()
 {
 	this->Weapon->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
 	this->MulitcastHandleDeath();
+}
+
+bool AAuraCharacterBase::IsDead_Implementation() const
+{
+	return this->bIsDead;
+}
+
+AActor* AAuraCharacterBase::GetAvatar_Implementation()
+{
+	return this;
+}
+
+TArray<FTaggedMontage> AAuraCharacterBase::GetAttackMontages_Implementation()
+{
+	return this->AttackMontages;
 }
 
 // _Implementation for Multicast functions required
@@ -65,6 +94,8 @@ void AAuraCharacterBase::MulitcastHandleDeath_Implementation()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	this->Dissolve();
+
+	this->bIsDead = true;
 }
 
 // Called when the game starts or when spawned
