@@ -97,6 +97,7 @@ void AAuraEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCou
 void AAuraEnemy::Die()
 {
 	SetLifeSpan(this->LifeSpan);
+	if (this->AIController) this->AIController->GetBlackboardComponent()->SetValueAsBool(FName("Dead"), true);
 
 	Super::Die();
 }
