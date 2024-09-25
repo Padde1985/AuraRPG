@@ -53,7 +53,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 		ResistanceValue = FMath::Clamp(ResistanceValue, 0.f, 100);
 
 		// Get Damage set by caller magnitude and calculate Block chance
-		float DamageTypeValue = Spec.GetSetByCallerMagnitude(DamageTypeToResistance.Key);
+		float DamageTypeValue = Spec.GetSetByCallerMagnitude(DamageTypeToResistance.Key, false);
 		// Damage * Resistance in percent
 		DamageTypeValue *= ((100.f - ResistanceValue) / 100.f);
 		Damage += DamageTypeValue;

@@ -6,6 +6,7 @@
 #include "CombatInterface.generated.h"
 
 class UAnimMontage;
+class UNiagaraSystem;
 
 USTRUCT(BlueprintType)
 struct FTaggedMontage
@@ -14,6 +15,8 @@ struct FTaggedMontage
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly) UAnimMontage* Montage = nullptr;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly) FGameplayTag MontageTag;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly) FGameplayTag SocketTag;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly) USoundBase* ImpactSound = nullptr;
 };
 
 // This class does not need to be modified.
@@ -38,4 +41,8 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) bool IsDead() const;
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) AActor* GetAvatar();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) TArray<FTaggedMontage> GetAttackMontages();
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent) UNiagaraSystem* GetBloodEffect();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) FTaggedMontage GetTaggedMontageByTag(const FGameplayTag& MontageTag);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) int32 GetMinionCount();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) void UpdateMinionCount(int32 Amount);
 };

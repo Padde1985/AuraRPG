@@ -5,6 +5,9 @@
 #include "../Aura.h"
 #include "Animation/AnimMontage.h"
 #include "AuraGameplayTags.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AAuraCharacterBase::AAuraCharacterBase()
@@ -38,17 +41,21 @@ FVector AAuraCharacterBase::GetCombatSocketLocation_Implementation(const FGamepl
 {
 	//TODO: return correct socket based on MontageTag
 	const FAuraGameplayTags& GameplayTags = FAuraGameplayTags::Get();
-	if (MontageTag.MatchesTagExact(GameplayTags.Montage_Attack_Weapon) && IsValid(this->Weapon))
+	if (MontageTag.MatchesTagExact(GameplayTags.CombatSocket_Weapon) && IsValid(this->Weapon))
 	{
 		return this->Weapon->GetSocketLocation(this->WeaponTipSocketName);
 	}
-	if (MontageTag.MatchesTagExact(GameplayTags.Montage_Attack_LeftHand))
+	if (MontageTag.MatchesTagExact(GameplayTags.CombatSocket_LeftHand))
 	{
 		return GetMesh()->GetSocketLocation(this->LeftHandSocketName);
 	}
-	if (MontageTag.MatchesTagExact(GameplayTags.Montage_Attack_RightHand))
+	if (MontageTag.MatchesTagExact(GameplayTags.CombatSocket_RightHand))
 	{
 		return this->Weapon->GetSocketLocation(this->RightHandSocketName);
+	}
+	if (MontageTag.MatchesTagExact(GameplayTags.CombatSocket_Tail))
+	{
+		return GetMesh()->GetSocketLocation(this->TailSocketName);
 	}
 	return FVector::ZeroVector;
 }
@@ -79,9 +86,35 @@ TArray<FTaggedMontage> AAuraCharacterBase::GetAttackMontages_Implementation()
 	return this->AttackMontages;
 }
 
+UNiagaraSystem* AAuraCharacterBase::GetBloodEffect_Implementation()
+{
+	return this->BloodEffect;
+}
+
+FTaggedMontage AAuraCharacterBase::GetTaggedMontageByTag_Implementation(const FGameplayTag& MontageTag)
+{
+	for (FTaggedMontage TaggedMontage : this->AttackMontages)
+	{
+		if (TaggedMontage.MontageTag == MontageTag) return TaggedMontage;
+	}
+	return FTaggedMontage();
+}
+
+int32 AAuraCharacterBase::GetMinionCount_Implementation()
+{
+	return this->MinionCount;
+}
+
+void AAuraCharacterBase::UpdateMinionCount_Implementation(int32 Amount)
+{
+	this->MinionCount += Amount;
+}
+
 // _Implementation for Multicast functions required
 void AAuraCharacterBase::MulitcastHandleDeath_Implementation()
 {
+	UGameplayStatics::PlaySoundAtLocation(this, this->DeathSound, GetActorLocation(), GetActorRotation());
+
 	this->Weapon->SetSimulatePhysics(true);
 	this->Weapon->SetEnableGravity(true);
 	this->Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);

@@ -39,6 +39,7 @@ void AAuraProjectile::Destroyed()
 		UGameplayStatics::PlaySoundAtLocation(this, this->ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
 		if(this->FlySoundComponent) this->FlySoundComponent->Stop();
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, this->ImpactEffect, GetActorLocation());
+		this->bHit = true;
 	}
 	Super::Destroyed();
 }
@@ -64,6 +65,7 @@ void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 		UGameplayStatics::PlaySoundAtLocation(this, this->ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
 		if (this->FlySoundComponent) this->FlySoundComponent->Stop();
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, this->ImpactEffect, GetActorLocation());
+		this->bHit = true;
 	}
 
 	// if server -> destroy the object when the server player launched the spell
