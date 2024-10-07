@@ -21,6 +21,9 @@ void UAuraAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 			GiveAbility(AbilitySpec);
 		}
 	}
+
+	this->bStartupAbilitiesGiven = true;
+	this->AbilitiesGiven.Broadcast(this);
 }
 
 // react to keeping effect active via keeping the button pressed
@@ -49,6 +52,57 @@ void UAuraAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& In
 		{
 			AbilitySpecInputReleased(Spec);
 		}
+	}
+}
+
+void UAuraAbilitySystemComponent::ForEachAbility(const FForeachAbility& Delegate)
+{
+	FScopedAbilityListLock ActiveScopeLock(*this); // lock list of abilities so that they cannot be invalidated outside this function in parallel
+	for (const FGameplayAbilitySpec& Spec : this->GetActivatableAbilities())
+	{
+		if (!Delegate.ExecuteIfBound(Spec))
+		{
+			UE_LOG(LogTemp, Error, TEXT("Failed to execute Delegate in %hs"), __FUNCTION__);
+		}
+	}
+}
+
+FGameplayTag UAuraAbilitySystemComponent::GetAbilityTagFromSpec(const FGameplayAbilitySpec& Spec)
+{
+	if (Spec.Ability)
+	{
+		for (FGameplayTag Tag : Spec.Ability->AbilityTags)
+		{
+			// check if any Ability is assigned
+			if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Abilities"))))
+			{
+				return Tag;
+			}
+		}
+	}
+	return FGameplayTag();
+}
+
+FGameplayTag UAuraAbilitySystemComponent::GetInputTagFromSpec(const FGameplayAbilitySpec& Spec)
+{
+	for (FGameplayTag Tag : Spec.DynamicAbilityTags)
+	{
+		if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("InputTag"))))
+		{
+			return Tag;
+		}
+	}
+	return FGameplayTag();
+}
+
+void UAuraAbilitySystemComponent::OnRep_ActivateAbilities()
+{
+	Super::OnRep_ActivateAbilities();
+
+	if (!this->bStartupAbilitiesGiven)
+	{
+		this->bStartupAbilitiesGiven = true;
+		this->AbilitiesGiven.Broadcast(this);
 	}
 }
 

@@ -2,6 +2,7 @@
 #include "AbilitySystem/AuraAttributeSet.h"
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "GameplayEffectTypes.h"
+#include "AbilitySystem/Data/AbilityInfo.h"
 
 // broadcast initial values for Mana and Health
 void UOverlayWidgetController::BroadcastInitialValues()
@@ -27,8 +28,10 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 		[this](const FOnAttributeChangeData& Data)	{ this->OnManaChanged.Broadcast(Data.NewValue); });
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(Set->GetMaxManaAttribute()).AddLambda(
 		[this](const FOnAttributeChangeData& Data)	{ this->OnMaxManaChanged.Broadcast(Data.NewValue); });
-	Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->EffectAssetTags.AddLambda(
-		[this](const FGameplayTagContainer& AssetTags)
+	if (UAuraAbilitySystemComponent* AuraASC = Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent))
+	{
+		AuraASC->EffectAssetTags.AddLambda(
+			[this](const FGameplayTagContainer& AssetTags)
 		{
 			for (const FGameplayTag& Tag : AssetTags)
 			{
@@ -42,4 +45,34 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 			}
 		}
 		);
+
+		// if Abilities were given first we have to call the function directly
+		if (AuraASC->bStartupAbilitiesGiven)
+		{
+			this->OnInitializeStartupAbilities(AuraASC);
+		}
+		// otherwise just bind to callback and wait for Abilities to be set
+		else
+		{
+			AuraASC->AbilitiesGiven.AddUObject(this, &UOverlayWidgetController::OnInitializeStartupAbilities);
+		}
+	}
+}
+
+void UOverlayWidgetController::OnInitializeStartupAbilities(UAuraAbilitySystemComponent* ASC)
+{
+	// TODO: Get information about all given abilities, look up ABilityInfo, broadcast to widgets
+	if (!ASC->bStartupAbilitiesGiven) return;
+
+	FForeachAbility BroadcastDelegate;
+	BroadcastDelegate.BindLambda(
+		[this](const FGameplayAbilitySpec& Spec)
+	{
+		// TODO: need a way to figure out the tag for a given spec
+		FAuraAbilityInfo Info = this->AbilityInfo->FindAbilityInfoForTag(UAuraAbilitySystemComponent::GetAbilityTagFromSpec(Spec));
+		Info.InputTag = UAuraAbilitySystemComponent::GetInputTagFromSpec(Spec);
+		this->AbilityInfoDelegate.Broadcast(Info);
+	}
+	);
+	ASC->ForEachAbility(BroadcastDelegate);
 }
