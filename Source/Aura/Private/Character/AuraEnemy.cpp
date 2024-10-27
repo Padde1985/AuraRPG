@@ -45,7 +45,7 @@ void AAuraEnemy::UnHighlightActor()
 }
 
 // get the enemy level
-int32 AAuraEnemy::GetLevel()
+int32 AAuraEnemy::GetLevel_Implementation()
 {
 	return this->EnemyLevel;
 }

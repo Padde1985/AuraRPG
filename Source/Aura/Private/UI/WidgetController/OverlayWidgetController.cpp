@@ -3,6 +3,8 @@
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "GameplayEffectTypes.h"
 #include "AbilitySystem/Data/AbilityInfo.h"
+#include "Player/AuraPlayerState.h"
+#include "AbilitySystem/Data/LevelInfo.h"
 
 // broadcast initial values for Mana and Health
 void UOverlayWidgetController::BroadcastInitialValues()
@@ -20,6 +22,11 @@ void UOverlayWidgetController::BroadcastInitialValues()
 void UOverlayWidgetController::BindCallbacksToDependencies()
 {
 	const UAuraAttributeSet* Set = CastChecked<UAuraAttributeSet>(AttributeSet);
+	AAuraPlayerState* AuraPlayerState = CastChecked<AAuraPlayerState>(PlayerState);
+
+	AuraPlayerState->OnXPChangedDelegate.AddUObject(this, &UOverlayWidgetController::OnXPChanged);
+	AuraPlayerState->OnLevelChangedDelegate.AddUObject(this, &UOverlayWidgetController::OnLevelChanged);
+
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(Set->GetHealthAttribute()).AddLambda(
 		[this](const FOnAttributeChangeData& Data)	{ this->OnHealthChanged.Broadcast(Data.NewValue); });
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(Set->GetMaxHealthAttribute()).AddLambda(
@@ -75,4 +82,30 @@ void UOverlayWidgetController::OnInitializeStartupAbilities(UAuraAbilitySystemCo
 	}
 	);
 	ASC->ForEachAbility(BroadcastDelegate);
+}
+
+void UOverlayWidgetController::OnXPChanged(int32 NewXP) const
+{
+	const AAuraPlayerState* AuraPlayerState = CastChecked<AAuraPlayerState>(PlayerState);
+	const ULevelInfo* LevelInfo = AuraPlayerState->LevelInfo;
+
+	checkf(LevelInfo, TEXT("Unable to find LevelInfo, please fill out AuraPlayerState Blueprint"));
+
+	const int32 Level = LevelInfo->FindLevelForXP(NewXP);
+	const int32 MaxLevel = LevelInfo->LevelInformation.Last().Level;
+	if (Level <= MaxLevel)
+	{
+		const int32 LevelUpRequirement = LevelInfo->GetInfoForLevel(Level).LevelUpRequirement;
+		const int32 PreviousLevelUpRequirement = Level > 2 ? LevelInfo->GetInfoForLevel(Level - 1).LevelUpRequirement : 0;		
+		const int32 Delta = LevelUpRequirement - PreviousLevelUpRequirement;
+		const int32 XPLevel = NewXP - PreviousLevelUpRequirement;
+		const float XPBarPercent = static_cast<float>(XPLevel) / static_cast<float>(Delta);
+
+		this->OnXPPercentChanged.Broadcast(XPBarPercent);
+	}
+}
+
+void UOverlayWidgetController::OnLevelChanged(int32 NewLevel)
+{
+	this->OnPlayerLevelChangedDelegate.Broadcast(NewLevel);
 }

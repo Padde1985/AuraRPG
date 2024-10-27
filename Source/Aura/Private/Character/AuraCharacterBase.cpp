@@ -8,6 +8,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
 #include "Kismet/GameplayStatics.h"
+#include "AbilitySystem/Data/CharacterClassInfo.h"
 
 // Sets default values
 AAuraCharacterBase::AAuraCharacterBase()
@@ -110,6 +111,12 @@ void AAuraCharacterBase::UpdateMinionCount_Implementation(int32 Amount)
 	this->MinionCount += Amount;
 }
 
+ECharacterClass AAuraCharacterBase::GetCharacterClass_Implementation()
+{
+
+	return this->CharacterClass;
+}
+
 // _Implementation for Multicast functions required
 void AAuraCharacterBase::MulitcastHandleDeath_Implementation()
 {
@@ -168,6 +175,7 @@ void AAuraCharacterBase::AddCharacterAbilities()
 
 	UAuraAbilitySystemComponent* AuraASC = CastChecked<UAuraAbilitySystemComponent>(this->AbilitySystemComponent);
 	AuraASC->AddCharacterAbilities(this->StartupAbilities);
+	AuraASC->AddPassiveAbilities(this->StartupPassives);
 }
 
 void AAuraCharacterBase::Dissolve()

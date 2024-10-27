@@ -23,6 +23,7 @@ USTRUCT(BlueprintType) struct FUIWidgetRow : public FTableRowBase
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageRowWidgetSignature, FUIWidgetRow, Row);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAbilityInfoSignature, const FAuraAbilityInfo&, Info);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerStatChangedSignature, int32, NewValue);
 
 UCLASS(BlueprintType, Blueprintable)
 class AURA_API UOverlayWidgetController : public UAuraWidgetController
@@ -34,8 +35,10 @@ public:
 	UPROPERTY(BlueprintAssignable, category = "GAS|Attributes") FOnAttributeChangedSignature OnMaxHealthChanged;
 	UPROPERTY(BlueprintAssignable, category = "GAS|Attributes") FOnAttributeChangedSignature OnManaChanged;
 	UPROPERTY(BlueprintAssignable, category = "GAS|Attributes") FOnAttributeChangedSignature OnMaxManaChanged;
+	UPROPERTY(BlueprintAssignable, category = "GAS|XP") FOnAttributeChangedSignature OnXPPercentChanged;
 	UPROPERTY(BlueprintAssignable, category = "GAS|Messages") FMessageRowWidgetSignature MessageWidgetRowDelegate;
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Messages") FAbilityInfoSignature AbilityInfoDelegate;
+	UPROPERTY(BlueprintAssignable, Category = "GAS|Level") FOnPlayerStatChangedSignature OnPlayerLevelChangedDelegate;
 
 	virtual void BroadcastInitialValues() override;
 	virtual void BindCallbacksToDependencies() override;
@@ -47,6 +50,8 @@ protected:
 
 	template<typename T> T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag);
 	void OnInitializeStartupAbilities(UAuraAbilitySystemComponent* ASC);
+	void OnXPChanged(int32 NewXP) const;
+	void OnLevelChanged(int32 NewLevel);
 };
 
 // Template functions are automatically craeted in the header file

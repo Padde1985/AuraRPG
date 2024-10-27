@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameplayEffectExecutionCalculation.h"
 #include "AuraGameplayTags.h"
+#include "../AuraAttributeSet.h"
 #include "ExecCalc_Damage.generated.h"
 
 struct AuraDamageStatics

@@ -32,6 +32,7 @@ public:
 	virtual FTaggedMontage GetTaggedMontageByTag_Implementation(const FGameplayTag& MontageTag) override;
 	virtual int32 GetMinionCount_Implementation() override;
 	virtual void UpdateMinionCount_Implementation(int32 Amount) override;
+	virtual ECharacterClass GetCharacterClass_Implementation() override;
 	
 	UFUNCTION(NetMulticast, Reliable) virtual void MulitcastHandleDeath(); // handles stuff on client AND server
 
@@ -50,6 +51,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "", meta = (AllowPrivateAccess = "true")) TObjectPtr<UMaterialInstance> WeaponDissolveMaterialInstance;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "", meta = (AllowPrivateAccess = "true")) UNiagaraSystem* BloodEffect;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "", meta = (AllowPrivateAccess = "true")) USoundBase* DeathSound;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults", meta = (AllowPrivateAccess = "true")) ECharacterClass CharacterClass = ECharacterClass::Warrior;
 
 	bool bIsDead = false;
 	int32 MinionCount = 0;
@@ -67,6 +69,7 @@ protected:
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Abilities", meta = (AllowPrivateAccess = "true")) TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
+	UPROPERTY(EditAnywhere, Category = "Abilities", meta = (AllowPrivateAccess = "true")) TArray<TSubclassOf<UGameplayAbility>> StartupPassives;
 	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true")) TObjectPtr<UAnimMontage> HitReactMontage;
 	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true")) TArray<FTaggedMontage> AttackMontages;
 };

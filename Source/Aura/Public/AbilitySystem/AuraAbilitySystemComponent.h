@@ -21,6 +21,7 @@ public:
 
 	void AbilityActorInfoSet();
 	void AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities);
+	void AddPassiveAbilities(const TArray<TSubclassOf<UGameplayAbility>>& Passives);
 	void AbilityInputTagHeld(const FGameplayTag& InputTag);
 	void AbilityInputTagReleased(const FGameplayTag& InputTag);
 	void ForEachAbility(const FForeachAbility& Delegate);

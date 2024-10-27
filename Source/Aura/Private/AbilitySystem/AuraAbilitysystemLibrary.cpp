@@ -86,9 +86,9 @@ void UAuraAbilitysystemLibrary::GiveStartupAbilities(const UObject* WorldContext
 	const FCharacterClassDefaultsInfo& DefaultInfo = CharacterClassInfo->GetClassDefaultInfo(CharacterClass);
 	for (TSubclassOf<UGameplayAbility> AbilityClass : DefaultInfo.StartupAbilities)
 	{
-		if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(ASC->GetAvatarActor()))
+		if (ASC->GetAvatarActor()->Implements<UCombatInterface>())
 		{
-			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, CombatInterface->GetLevel());
+			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, ICombatInterface::Execute_GetLevel(ASC->GetAvatarActor()));
 			ASC->GiveAbility(AbilitySpec);
 		}
 	}
@@ -153,6 +153,17 @@ bool UAuraAbilitysystemLibrary::IsNotFriend(AActor* FirstActor, AActor* SecondAc
 	const bool bSecondIsPlayer = SecondActor->ActorHasTag(FName("Player"));
 
 	return bFirstIsPlayer && !bSecondIsPlayer || !bFirstIsPlayer && bSecondIsPlayer;
+}
+
+int32 UAuraAbilitysystemLibrary::GetXPRewardForClassAndLevel(ECharacterClass CharacterClass, int32 Level, const UObject* WorldContextObject)
+{
+	UCharacterClassInfo* ClassInfo = GetCharacterClassInfo(WorldContextObject);
+	if (ClassInfo == nullptr) return 0;
+
+	const FCharacterClassDefaultsInfo Info = ClassInfo->GetClassDefaultInfo(CharacterClass);
+	const float XPReward = Info.XPReward.GetValueAtLevel(Level);
+
+	return static_cast<int32>(XPReward);
 }
 
 void UAuraAbilitysystemLibrary::SetIsCriticalHit(FGameplayEffectContextHandle& ContextHandle, bool bInIsCriticalHit)

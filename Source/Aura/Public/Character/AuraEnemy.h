@@ -4,7 +4,6 @@
 #include "Character/AuraCharacterBase.h"
 #include "Interaction/EnemyInterface.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
-#include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "AuraEnemy.generated.h"
 
 class UWidgetComponent;
@@ -25,7 +24,7 @@ public:
 
 	virtual void HighlightActor() override;
 	virtual void UnHighlightActor() override;
-	virtual int32 GetLevel() override;
+	virtual int32 GetLevel_Implementation() override;
 	void HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
 	virtual void Die() override;
 	virtual void PossessedBy(AController* NewController) override;
@@ -41,7 +40,6 @@ protected:
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character Class Defaults", meta = (AllowPrivateAccess = "true")) int32 EnemyLevel = 1;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults", meta = (AllowPrivateAccess = "true")) ECharacterClass CharacterClass = ECharacterClass::Warrior;
 	UPROPERTY(BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true")) bool bHitReacting;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true")) float BaseWalkSpeed = 250.f;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true")) float LifeSpan = 5.f;

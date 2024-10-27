@@ -26,9 +26,17 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	const UAbilitySystemComponent* TargetASC = ExecutionParams.GetTargetAbilitySystemComponent();
 
 	AActor* SourceAvatar = SourceASC ? SourceASC->GetAvatarActor() : nullptr;
-	ICombatInterface* SourceCombatInterface = Cast<ICombatInterface>(SourceAvatar);
+	int32 SourcePlayerLevel = 1;
+	if (SourceAvatar->Implements<UCombatInterface>())
+	{
+		SourcePlayerLevel = ICombatInterface::Execute_GetLevel(SourceAvatar);
+	}
 	AActor* TargetAvatar = TargetASC ? TargetASC->GetAvatarActor() : nullptr;
-	ICombatInterface* TargetCombatInterface = Cast<ICombatInterface>(TargetAvatar);
+	int32 TargetPlayerLevel = 1;
+	if (TargetAvatar->Implements<UCombatInterface>())
+	{
+		TargetPlayerLevel = ICombatInterface::Execute_GetLevel(TargetAvatar);
+	}
 
 	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
 
@@ -94,11 +102,11 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	// 4. get coefficients
 	const UCharacterClassInfo* CharacterClassInfo = UAuraAbilitysystemLibrary::GetCharacterClassInfo(SourceAvatar); // "this" does not work as this class is not an object in the world
 	const FRealCurve* ArmorPenetrationCurve = CharacterClassInfo->DamageCalculationCoeffs->FindCurve(FName("ArmorPenetration"), FString());
-	const float ArmorPenetrationCoeff = ArmorPenetrationCurve->Eval(SourceCombatInterface->GetLevel());
+	const float ArmorPenetrationCoeff = ArmorPenetrationCurve->Eval(SourcePlayerLevel);
 	const FRealCurve* EffectiveArmorCurve = CharacterClassInfo->DamageCalculationCoeffs->FindCurve(FName("EffectiveArmor"), FString());
-	const float EffectiveArmorCoeff = EffectiveArmorCurve->Eval(TargetCombatInterface->GetLevel());
+	const float EffectiveArmorCoeff = EffectiveArmorCurve->Eval(TargetPlayerLevel);
 	const FRealCurve* EffectiveCritCurve = CharacterClassInfo->DamageCalculationCoeffs->FindCurve(FName("CritResistance"), FString());
-	const float EffectiveCritCoeff = EffectiveCritCurve->Eval(TargetCombatInterface->GetLevel());
+	const float EffectiveCritCoeff = EffectiveCritCurve->Eval(TargetPlayerLevel);
 
 	const float EffectiveArmor = TargetArmor * (100 - SourceArmorPenetration * ArmorPenetrationCoeff) / 100.f;
 	Damage *= (100 - EffectiveArmor / EffectiveArmorCoeff) / 100.f;

@@ -68,6 +68,7 @@ public:
 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, HealthRegeneration);
 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, ManaRegeneration);
 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, IncomingDamage);
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, IncomingXP);
 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, FireResistance);
 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, LightningResistance);
 	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, ArcaneResistance);
@@ -83,6 +84,7 @@ public:
 	* Meta Attributes
 	*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meta Attributes") FGameplayAttributeData IncomingDamage;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Meta Attributes") FGameplayAttributeData IncomingXP;
 
 	/*
 	* Primary Attributes
@@ -138,4 +140,5 @@ public:
 private:
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const;
 	void ShowFloatingText(const FEffectProperties& Props, float Damage, bool bIsBlocked, bool bIsCritical) const;
+	void SendXPEvent(const FEffectProperties& Props);
 };
