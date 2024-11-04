@@ -19,6 +19,11 @@ class AURA_API AAuraPlayerState : public APlayerState, public IAbilitySystemInte
 public:
 	UPROPERTY(EditDefaultsOnly) TObjectPtr<ULevelInfo> LevelInfo;
 
+	FOnPlayerStatChanged OnXPChangedDelegate;
+	FOnPlayerStatChanged OnLevelChangedDelegate;
+	FOnPlayerStatChanged OnAttributePointsChangedDelegate;
+	FOnPlayerStatChanged OnSpellPointsChangedDelegate;
+
 	AAuraPlayerState();
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
@@ -30,8 +35,10 @@ public:
 	void AddToXP(int32 XP);
 	void SetXP(int32 XP);
 	int32 GetXP() const;
-	FOnPlayerStatChanged OnXPChangedDelegate;
-	FOnPlayerStatChanged OnLevelChangedDelegate;
+	void AddToAP(int32 AP);
+	int32 GetAP() const;
+	void AddToSP(int32 SP);
+	int32 GetSP() const;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "", meta = (AllowPrivateAccess = "true")) TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
@@ -40,8 +47,11 @@ protected:
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "", meta = (AllowPrivateAccess = "true"), ReplicatedUsing = OnRep_Level) int32 PlayerLevel = 1;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "", meta = (AllowPrivateAccess = "true"), ReplicatedUsing = OnRep_XP) int32 PlayerXP = 0;
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "", meta = (AllowPrivateAccess = "true"), ReplicatedUsing = OnRep_AP) int32 AttributePoints = 0;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "", meta = (AllowPrivateAccess = "true"), ReplicatedUsing = OnRep_SP) int32 SpellPoints = 0;
 
 	UFUNCTION() void OnRep_Level(int32 OldLevel);
 	UFUNCTION() void OnRep_XP(int32 OldXP);
+	UFUNCTION() void OnRep_AP(int32 OldAP);
+	UFUNCTION() void OnRep_SP(int32 OldSP);
 };

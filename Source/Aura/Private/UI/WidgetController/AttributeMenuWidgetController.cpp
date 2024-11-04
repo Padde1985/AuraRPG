@@ -2,6 +2,14 @@
 #include "AbilitySystem/AuraAttributeSet.h"
 #include "AbilitySystem/Data/AttributeInfo.h"
 #include "AuraGameplayTags.h"
+#include "Player/AuraPlayerState.h"
+#include "AbilitySystem/AuraAbilitySystemComponent.h"
+
+void UAttributeMenuWidgetController::UpgradeAttribute(const FGameplayTag& AttributeTag)
+{
+	UAuraAbilitySystemComponent* AuraASC = CastChecked<UAuraAbilitySystemComponent>(AbilitySystemComponent);
+	AuraASC->UpgradeAttribute(AttributeTag);
+}
 
 // broadcast initial values to be displayed in attribute menu
 void UAttributeMenuWidgetController::BroadcastInitialValues()
@@ -15,6 +23,10 @@ void UAttributeMenuWidgetController::BroadcastInitialValues()
 	{
 		this->BroadcastAttributeInfo(Pair.Key, Pair.Value());
 	}
+
+	AAuraPlayerState* AuraPlayerState = CastChecked<AAuraPlayerState>(PlayerState);
+	this->AttributePointsDelegate.Broadcast(AuraPlayerState->GetAP());
+	this->SpellPointsDelegate.Broadcast(AuraPlayerState->GetSP());
 }
 
 // call lambda function to update values when changed
@@ -30,6 +42,20 @@ void UAttributeMenuWidgetController::BindCallbacksToDependencies()
 			}
 		);
 	}
+
+	AAuraPlayerState* AuraPlayerState = CastChecked<AAuraPlayerState>(PlayerState);
+	AuraPlayerState->OnAttributePointsChangedDelegate.AddLambda(
+		[this](int32 Points)
+		{
+			this->AttributePointsDelegate.Broadcast(Points);
+		}
+	);
+	AuraPlayerState->OnSpellPointsChangedDelegate.AddLambda(
+		[this](int32 Points)
+	{
+			this->SpellPointsDelegate.Broadcast(Points);
+	}
+	);
 }
 
 // get value for attribute corresponding to tag and broadcast that information

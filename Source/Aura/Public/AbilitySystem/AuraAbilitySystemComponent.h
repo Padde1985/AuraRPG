@@ -14,6 +14,8 @@ class AURA_API UAuraAbilitySystemComponent : public UAbilitySystemComponent
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(Server, Reliable) void ServerUpgradeAttribute(const FGameplayTag& AttributeTag);
+
 	FEffectAssetTags EffectAssetTags;
 	FAbilitiesGiven AbilitiesGiven;
 	
@@ -27,6 +29,7 @@ public:
 	void ForEachAbility(const FForeachAbility& Delegate);
 	static FGameplayTag GetAbilityTagFromSpec(const FGameplayAbilitySpec& Spec);
 	static FGameplayTag GetInputTagFromSpec(const FGameplayAbilitySpec& Spec);
+	void UpgradeAttribute(const FGameplayTag& AttributeTag);
 
 protected:
 	UFUNCTION(Client, Reliable) void OnEffectApplied(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle);
