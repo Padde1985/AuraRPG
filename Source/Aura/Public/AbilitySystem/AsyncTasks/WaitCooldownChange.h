@@ -6,6 +6,8 @@
 #include "WaitCooldownChange.generated.h"
 
 class UAbilitySystemComponent;
+struct FGameplayEffectSpec;
+struct FActiveGameplayEffectHandle;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FCooldownChangeSignature, float, TimeRemaining);
 

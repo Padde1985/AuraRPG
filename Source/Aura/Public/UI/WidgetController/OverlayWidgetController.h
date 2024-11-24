@@ -21,7 +21,6 @@ USTRUCT(BlueprintType) struct FUIWidgetRow : public FTableRowBase
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageRowWidgetSignature, FUIWidgetRow, Row);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAbilityInfoSignature, const FAuraAbilityInfo&, Info);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);
 
 UCLASS(BlueprintType, Blueprintable)
@@ -36,7 +35,6 @@ public:
 	UPROPERTY(BlueprintAssignable, category = "GAS|Attributes") FOnAttributeChangedSignature OnMaxManaChanged;
 	UPROPERTY(BlueprintAssignable, category = "GAS|XP") FOnAttributeChangedSignature OnXPPercentChanged;
 	UPROPERTY(BlueprintAssignable, category = "GAS|Messages") FMessageRowWidgetSignature MessageWidgetRowDelegate;
-	UPROPERTY(BlueprintAssignable, Category = "GAS|Messages") FAbilityInfoSignature AbilityInfoDelegate;
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Level") FOnPlayerStatChangedSignature OnPlayerLevelChangedDelegate;
 
 	virtual void BroadcastInitialValues() override;
@@ -44,13 +42,11 @@ public:
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data", meta = (AllowPrivateAccess = "true")) TObjectPtr<UDataTable> MessageWidgetDataTable;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data", meta = (AllowPrivateAccess = "true")) TObjectPtr<UAbilityInfo> AbilityInfo;
-
 
 	template<typename T> T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag);
-	void OnInitializeStartupAbilities(UAuraAbilitySystemComponent* ASC);
-	void OnXPChanged(int32 NewXP) const;
+	void OnXPChanged(int32 NewXP);
 	void OnLevelChanged(int32 NewLevel);
+	void OnAbilityEquipped(const FGameplayTag& AbilityTag, const FGameplayTag& Status, const FGameplayTag& Slot, const FGameplayTag& PreviousSlot) const;
 };
 
 // Template functions are automatically craeted in the header file

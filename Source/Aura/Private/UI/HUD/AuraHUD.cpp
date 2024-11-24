@@ -4,6 +4,7 @@
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "AbilitySystem/AuraAttributeSet.h"
 #include "UI/WidgetController/AttributeMenuWidgetController.h"
+#include "UI/WidgetController/SpellMenuWidgetController.h"
 
 // return widget controller for overlay
 UOverlayWidgetController* AAuraHUD::GetOverlayWidgetController(const FWidgetControllerParams& WCParams)
@@ -27,6 +28,17 @@ UAttributeMenuWidgetController* AAuraHUD::GetAttributeMenuWidgetController(const
 		this->AttributeMenuWidgetController->BindCallbacksToDependencies();
 	}
 	return this->AttributeMenuWidgetController;
+}
+
+USpellMenuWidgetController* AAuraHUD::GetSpellMenuWidgetController(const FWidgetControllerParams& WCParams)
+{
+	if (this->SpellMenuWidgetController == nullptr)
+	{
+		this->SpellMenuWidgetController = NewObject<USpellMenuWidgetController>(this, this->SpellMenuWidgetControllerClass);
+		this->SpellMenuWidgetController->SetWidgetControllerParams(WCParams);
+		this->SpellMenuWidgetController->BindCallbacksToDependencies();
+	}
+	return this->SpellMenuWidgetController;
 }
 
 // create the overall overlay widget
