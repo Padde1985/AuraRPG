@@ -20,9 +20,16 @@ bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bo
 		if (bHasWorldOrigin) RepBits |= 1 << 6;
 		if (this->bIsCriticalHit) RepBits |= 1 << 7; 
 		if (this->bIsBlockedHit) RepBits |= 1 << 8;
+		if (this->bIsSuccessfulDebuff) RepBits |= 1 << 9;
+		if (this->DebuffDamage > 0.f) RepBits |= 1 << 10;
+		if (this->DebuffDuration > 0.f) RepBits |= 1 << 11;
+		if (this->DebuffFrequency > 0.f) RepBits |= 1 << 12;
+		if (this->DamageType.IsValid()) RepBits |= 1 << 13;
+		if (!this->DeathImpulse.IsZero()) RepBits |= 1 << 14;
+		if (!this->KnockbackForce.IsZero()) RepBits |= 1 << 15;
 	}
 
-	Ar.SerializeBits(&RepBits, 9);
+	Ar.SerializeBits(&RepBits, 15);
 
 	if (RepBits & (1 << 0))	Ar << Instigator; // other way round with bitwise AND => only if both bits are 1, the result is 1
 	if (RepBits & (1 << 1)) Ar << EffectCauser;
@@ -51,6 +58,23 @@ bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bo
 	}
 	if (RepBits & (1 << 7))	Ar << this->bIsCriticalHit;
 	if (RepBits & (1 << 8))	Ar << this->bIsBlockedHit;
+	if (RepBits & (1 << 9))	Ar << this->bIsSuccessfulDebuff;
+	if (RepBits & (1 << 10)) Ar << this->DebuffDamage;
+	if (RepBits & (1 << 11)) Ar << this->DebuffDuration;
+	if (RepBits & (1 << 12)) Ar << this->DebuffFrequency;
+	if (RepBits & (1 << 13))
+	{
+		if (Ar.IsLoading())
+		{
+			if (!this->DamageType.IsValid())
+			{
+				this->DamageType = TSharedPtr<FGameplayTag>(new FGameplayTag());
+			}
+		}
+		this->DamageType->NetSerialize(Ar, Map, bOutSuccess);
+	}
+	if (RepBits & (1 << 14)) this->DeathImpulse.NetSerialize(Ar, Map, bOutSuccess); // Vectors can be seralized easily
+	if (RepBits & (1 << 15)) this->KnockbackForce.NetSerialize(Ar, Map, bOutSuccess);
 
 	if (Ar.IsLoading())
 	{
@@ -91,4 +115,74 @@ void FAuraGameplayEffectContext::SetIsCriticalHit(bool bIsCriticalHitIn)
 void FAuraGameplayEffectContext::SetIsBlockedHit(bool bIsBlockedHitIn)
 {
 	this->bIsBlockedHit = bIsBlockedHitIn;
+}
+
+bool FAuraGameplayEffectContext::IsSuccessfulDebuff() const
+{
+	return this->bIsSuccessfulDebuff;
+}
+
+float FAuraGameplayEffectContext::GetDebuffDamage() const
+{
+	return this->DebuffDamage;
+}
+
+float FAuraGameplayEffectContext::GetDebuffDuration() const
+{
+	return this->DebuffDuration;
+}
+
+float FAuraGameplayEffectContext::GetDebuffFrequency() const
+{
+	return this->DebuffFrequency;
+}
+
+TSharedPtr<FGameplayTag> FAuraGameplayEffectContext::GetDamageType() const
+{
+	return this->DamageType;
+}
+
+void FAuraGameplayEffectContext::SetIsSuccessfulDebuff(bool bSuccessful)
+{
+	this->bIsSuccessfulDebuff = bSuccessful;
+}
+
+void FAuraGameplayEffectContext::SetDebuffDamage(float Damage)
+{
+	this->DebuffDamage = Damage;
+}
+
+void FAuraGameplayEffectContext::SetDebuffDuration(float Duration)
+{
+	this->DebuffDuration = Duration;
+}
+
+void FAuraGameplayEffectContext::SetDebuffFrequency(float Frequency)
+{
+	this->DebuffFrequency = Frequency;
+}
+
+void FAuraGameplayEffectContext::SetDamageType(TSharedPtr<FGameplayTag> InDamageType)
+{
+	this->DamageType = InDamageType;
+}
+
+FVector FAuraGameplayEffectContext::GetDeathImpulse() const
+{
+	return this->DeathImpulse;
+}
+
+void FAuraGameplayEffectContext::SetDeathImpulse(const FVector& Impulse)
+{
+	this->DeathImpulse = Impulse;
+}
+
+FVector FAuraGameplayEffectContext::GetKnockbackForce() const
+{
+	return this->KnockbackForce;
+}
+
+void FAuraGameplayEffectContext::SetKnockbackForce(const FVector& Force)
+{
+	this->KnockbackForce = Force;
 }

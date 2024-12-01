@@ -8,6 +8,10 @@
 
 class UAnimMontage;
 class UNiagaraSystem;
+class UAbilitySystemComponent;
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnASCRegistered, UAbilitySystemComponent*);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDeath, AActor*, DeadActor);
 
 USTRUCT(BlueprintType)
 struct FTaggedMontage
@@ -33,7 +37,10 @@ class AURA_API ICombatInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual void Die() = 0;
+	virtual void Die(const FVector& DeathImpulse) = 0;
+	virtual FOnASCRegistered GetOnASCRegisteredDelegate() = 0;
+	virtual FOnDeath GetOnDeathDelegate() = 0;
+	virtual void Knockback(const FVector& Force) = 0;
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) FVector GetCombatSocketLocation(const FGameplayTag& MontageTag);
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable) void UpdateWarpTarget(const FVector& FacingTarget);

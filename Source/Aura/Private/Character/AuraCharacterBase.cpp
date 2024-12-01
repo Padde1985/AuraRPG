@@ -9,11 +9,16 @@
 #include "NiagaraSystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
+#include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 
 // Sets default values
 AAuraCharacterBase::AAuraCharacterBase()
 {
 	PrimaryActorTick.bCanEverTick = false;
+
+	this->BurnDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>("Burn Debuff Component");
+	this->BurnDebuffComponent->SetupAttachment(GetRootComponent());
+	this->BurnDebuffComponent->DebuffTag = FAuraGameplayTags::Get().Debuff_Burn;
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
@@ -66,10 +71,10 @@ UAnimMontage* AAuraCharacterBase::GetHitReactMontage_Implementation()
 	return this->HitReactMontage;
 }
 
-void AAuraCharacterBase::Die()
+void AAuraCharacterBase::Die(const FVector& DeathImpulse)
 {
 	this->Weapon->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
-	this->MulitcastHandleDeath();
+	this->MulitcastHandleDeath(DeathImpulse);
 }
 
 bool AAuraCharacterBase::IsDead_Implementation() const
@@ -117,25 +122,44 @@ ECharacterClass AAuraCharacterBase::GetCharacterClass_Implementation()
 	return this->CharacterClass;
 }
 
+FOnASCRegistered AAuraCharacterBase::GetOnASCRegisteredDelegate()
+{
+	return this->OnASCRegistered;
+}
+
+FOnDeath AAuraCharacterBase::GetOnDeathDelegate()
+{
+	return this->OnDeath;
+}
+
+void AAuraCharacterBase::Knockback(const FVector& Force)
+{
+	LaunchCharacter(Force, true, true);
+}
+
 // _Implementation for Multicast functions required
-void AAuraCharacterBase::MulitcastHandleDeath_Implementation()
+void AAuraCharacterBase::MulitcastHandleDeath_Implementation(const FVector& DeathImpulse)
 {
 	UGameplayStatics::PlaySoundAtLocation(this, this->DeathSound, GetActorLocation(), GetActorRotation());
 
 	this->Weapon->SetSimulatePhysics(true);
 	this->Weapon->SetEnableGravity(true);
 	this->Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	this->Weapon->AddImpulse(DeathImpulse * 0.1f, NAME_None, true); // scale down as weapon is becoming a projectile otherwise
 
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->SetEnableGravity(true);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+	GetMesh()->AddImpulse(DeathImpulse, NAME_None, true);
 	
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	this->Dissolve();
 
 	this->bIsDead = true;
+
+	this->OnDeath.Broadcast(this);
 }
 
 // Called when the game starts or when spawned

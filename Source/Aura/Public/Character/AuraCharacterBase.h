@@ -10,6 +10,7 @@ class UAbilitySystemComponent;
 class UAttributeSet;
 class UGameplayEffect;
 class UNiagaraSystem;
+class UDebuffNiagaraComponent;
 
 UCLASS(Abstract)
 class AURA_API AAuraCharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
@@ -20,11 +21,14 @@ public:
 	// Sets default values for this character's properties
 	AAuraCharacterBase();
 
+	FOnASCRegistered OnASCRegistered;
+	FOnDeath OnDeath;
+
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const;
 	virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) override;
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
-	virtual void Die() override; // handles stuff on Server ONLY
+	virtual void Die(const FVector& DeathImpulse) override; // handles stuff on Server ONLY
 	virtual bool IsDead_Implementation() const override;
 	virtual AActor* GetAvatar_Implementation() override;
 	virtual TArray<FTaggedMontage> GetAttackMontages_Implementation() override;
@@ -33,8 +37,11 @@ public:
 	virtual int32 GetMinionCount_Implementation() override;
 	virtual void UpdateMinionCount_Implementation(int32 Amount) override;
 	virtual ECharacterClass GetCharacterClass_Implementation() override;
+	virtual FOnASCRegistered GetOnASCRegisteredDelegate() override;
+	virtual FOnDeath GetOnDeathDelegate() override;
+	virtual void Knockback(const FVector& Force) override;
 	
-	UFUNCTION(NetMulticast, Reliable) virtual void MulitcastHandleDeath(); // handles stuff on client AND server
+	UFUNCTION(NetMulticast, Reliable) virtual void MulitcastHandleDeath(const FVector& DeathImpulse); // handles stuff on client AND server
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true")) TObjectPtr<USkeletalMeshComponent> Weapon;
@@ -52,6 +59,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "", meta = (AllowPrivateAccess = "true")) UNiagaraSystem* BloodEffect;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "", meta = (AllowPrivateAccess = "true")) USoundBase* DeathSound;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults", meta = (AllowPrivateAccess = "true")) ECharacterClass CharacterClass = ECharacterClass::Warrior;
+	UPROPERTY(VisibleAnywhere) TObjectPtr<UDebuffNiagaraComponent> BurnDebuffComponent;
 
 	bool bIsDead = false;
 	int32 MinionCount = 0;

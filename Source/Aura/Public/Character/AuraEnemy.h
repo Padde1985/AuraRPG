@@ -26,10 +26,11 @@ public:
 	virtual void UnHighlightActor() override;
 	virtual int32 GetLevel_Implementation() override;
 	void HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
-	virtual void Die() override;
+	virtual void Die(const FVector& DeathImpulse) override;
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void SetCombatTarget_Implementation(AActor* InCombatTarget) override;
 	virtual AActor* GetCombatTarget_Implementation() const override;
+	virtual void Knockback(const FVector& Force) override;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UWidgetComponent> HealthBar;

@@ -94,12 +94,12 @@ void AAuraEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCou
 	if(this->AIController && this->AIController->GetBlackboardComponent()) this->AIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), this->bHitReacting);
 }
 
-void AAuraEnemy::Die()
+void AAuraEnemy::Die(const FVector& DeathImpulse)
 {
 	SetLifeSpan(this->LifeSpan);
 	if (this->AIController) this->AIController->GetBlackboardComponent()->SetValueAsBool(FName("Dead"), true);
 
-	Super::Die();
+	Super::Die(DeathImpulse);
 }
 
 void AAuraEnemy::PossessedBy(AController* NewController)
@@ -125,6 +125,12 @@ AActor* AAuraEnemy::GetCombatTarget_Implementation() const
 	return this->CombatTarget;
 }
 
+void AAuraEnemy::Knockback(const FVector& Force)
+{
+	Super::Knockback(Force);
+	this->AIController->StopMovement();
+}
+
 // set controll params
 void AAuraEnemy::InitAbilityActorInfo()
 {
@@ -133,6 +139,8 @@ void AAuraEnemy::InitAbilityActorInfo()
 
 	// do that only on the server
 	if(HasAuthority()) InitializeDefaultAttributes();
+
+	OnASCRegistered.Broadcast(AbilitySystemComponent);
 }
 
 void AAuraEnemy::InitializeDefaultAttributes() const
