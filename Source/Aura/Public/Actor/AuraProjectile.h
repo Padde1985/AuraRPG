@@ -17,6 +17,7 @@ class AURA_API AAuraProjectile : public AActor
 public:	
 	UPROPERTY(VisibleAnywhere, Category = "Components") TObjectPtr<UProjectileMovementComponent> ProjectileMovement;
 	UPROPERTY(BlueprintReadWrite, Category = "", meta = (ExposeOnSpawn = "true")) FDamageEffectParams DamageEffectParams;
+	UPROPERTY() TObjectPtr<USceneComponent> HomingTargetSceneComponent;
 
 	// Sets default values for this actor's properties
 	AAuraProjectile();

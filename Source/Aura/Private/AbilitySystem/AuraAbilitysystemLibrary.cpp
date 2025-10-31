@@ -337,6 +337,77 @@ void UAuraAbilitysystemLibrary::SetKnockbackForce(UPARAM(ref)FGameplayEffectCont
 	}
 }
 
+TArray<FRotator> UAuraAbilitysystemLibrary::EvenlySpacedRotators(const FVector& Forward, const FVector& Axis, float Spread, int32 Rotators)
+{
+	TArray<FRotator> RotatorArray;
+
+	if (Rotators > 1)
+	{
+		const FVector LeftOfSpread = Forward.RotateAngleAxis(-Spread / 2.f, FVector::UpVector);
+		const float DeltaSpread = Spread / (Rotators - 1);
+
+		for (int32 i = 0; i < Rotators; i++)
+		{
+			const FVector Direction = LeftOfSpread.RotateAngleAxis(DeltaSpread * i, Axis);
+			RotatorArray.Add(Direction.Rotation());
+		}
+	}
+	else
+	{
+		RotatorArray.Add(Forward.Rotation());
+	}
+
+	return RotatorArray;
+}
+
+TArray<FVector> UAuraAbilitysystemLibrary::EvenlyRotatedVectors(const FVector& Forward, const FVector& Axis, float Spread, int32 Vectors)
+{
+	TArray<FVector> VectorArray;
+
+	if (Vectors > 1)
+	{
+		const FVector LeftOfSpread = Forward.RotateAngleAxis(-Spread / 2.f, FVector::UpVector);
+		const float DeltaSpread = Spread / (Vectors - 1);
+
+		for (int32 i = 0; i < Vectors; i++)
+		{
+			const FVector Direction = LeftOfSpread.RotateAngleAxis(DeltaSpread * i, Axis);
+			VectorArray.Add(Direction);
+		}
+	}
+	else
+	{
+		VectorArray.Add(Forward);
+	}
+
+	return VectorArray;
+}
+
+void UAuraAbilitysystemLibrary::GetClosestTargets(int32 MaxTargets, const TArray<AActor*>& Actors, TArray<AActor*>& OutClosestTargets, const FVector& Origin)
+{
+	if (Actors.Num() <= MaxTargets)
+	{
+		OutClosestTargets = Actors;
+	}
+	else
+	{
+		if (MaxTargets < 1) return;
+
+		TArray<AActor*> ActorsToCheck = Actors;
+		Algo::Sort(ActorsToCheck, [Origin](const AActor* ActorA, const AActor* ActorB)
+		{
+			const float DistanceA = FVector::DistSquared(ActorA->GetActorLocation(), Origin);
+			const float DistanceB = FVector::DistSquared(ActorB->GetActorLocation(), Origin);
+			return DistanceA < DistanceB;
+		});
+		
+		for (int32 i = 0; i < MaxTargets; i++)
+		{
+			OutClosestTargets.Add(ActorsToCheck[i]);
+		}
+	}
+}
+
 void UAuraAbilitysystemLibrary::SetIsCriticalHit(FGameplayEffectContextHandle& ContextHandle, bool bInIsCriticalHit)
 {
 	if (FAuraGameplayEffectContext* AuraEffectContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get()))

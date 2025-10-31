@@ -16,7 +16,7 @@ class AURA_API UAuraProjectileSpell : public UAuraDamageGameplayAbility
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Classes", meta = (AllowPrivateAccess = "true")) TSubclassOf<AAuraProjectile> ProjectileClass;
 
-	UFUNCTION(BlueprintCallable, Category = "Projectile") void SpawnProjectile(const FVector& ProjectileTargetLocation, const FGameplayTag& SocketTag);
+	UFUNCTION(BlueprintCallable, Category = "Projectile") void SpawnProjectile(const FVector& ProjectileTargetLocation, const FGameplayTag& SocketTag, bool bPitchOverride = false, float Pitch = 0.f);
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 };

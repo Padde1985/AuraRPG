@@ -1,5 +1,10 @@
 #include "AbilitySystem/Abilities/AuraFireBolt.h"
 #include "AuraGameplayTags.h"
+#include "Interaction/CombatInterface.h"
+#include "AbilitySystem/AuraAbilitysystemLibrary.h"
+#include "Actor/AuraProjectile.h"
+#include "Kismet/GameplayStatics.h"
+#include "Gameframework/ProjectileMovementComponent.h"
 
 FString UAuraFireBolt::GetDescription(int32 Level)
 {
@@ -26,7 +31,7 @@ FString UAuraFireBolt::GetDescription(int32 Level)
 										"<Small>Level: </><Level>%d</>\n"
 										"<Small>ManaCost: </><ManaCost>%.0f</>\n"
 										"<Small>Cooldown: </><Cooldown>%.1f</>"),
-									FMath::Min(Level, this->NumProjectiles), ScaledDamage, Level, ManaCost, Cooldown);
+									FMath::Min(Level, this->MaxProjectiles), ScaledDamage, Level, ManaCost, Cooldown);
 	}
 }
 
@@ -42,5 +47,54 @@ FString UAuraFireBolt::GetNextLevelDescription(int32 Level)
 									"<Small>Level: </><Level>%d</>\n"
 									"<Small>ManaCost: </><ManaCost>%.0f</>\n"
 									"<Small>Cooldown: </><Cooldown>%.1f</>"),
-								FMath::Min(Level, this->NumProjectiles), ScaledDamage, Level, ManaCost, Cooldown);
+								FMath::Min(Level, this->MaxProjectiles), ScaledDamage, Level, ManaCost, Cooldown);
+}
+
+void UAuraFireBolt::SpawnProjectiles(const FVector& ProjectileTargetLocation, const FGameplayTag& SocketTag, AActor* HomingTarget, bool bPitchOverride, float Pitch)
+{
+	const int32 NumProjectiles = FMath::Min(this->MaxProjectiles, GetAbilityLevel());
+	if (NumProjectiles > 1)
+	{
+		bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority();
+		if (!bIsServer) return;
+
+		const FVector SocketLocation = ICombatInterface::Execute_GetCombatSocketLocation(GetAvatarActorFromActorInfo(), SocketTag);
+		FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
+
+		if (bPitchOverride) Rotation.Pitch = Pitch;
+
+		const FVector Forward = Rotation.Vector();
+		TArray<FVector> Directions = UAuraAbilitysystemLibrary::EvenlyRotatedVectors(Forward, FVector::UpVector, this->ProjectileSpread, NumProjectiles);
+		for (const FVector& Direction : Directions)
+		{
+			FTransform SpawnTransform;
+			SpawnTransform.SetLocation(SocketLocation);
+			SpawnTransform.SetRotation(Direction.Rotation().Quaternion());
+
+			AAuraProjectile* Projectile = GetWorld()->SpawnActorDeferred<AAuraProjectile>(ProjectileClass, SpawnTransform, GetAvatarActorFromActorInfo(),
+																						  Cast<APawn>(GetAvatarActorFromActorInfo()), ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+
+			Projectile->DamageEffectParams = MakeDamageEffectParamsFromClassDefaults();
+
+			if (HomingTarget && HomingTarget->Implements<UCombatInterface>())
+			{
+				Projectile->ProjectileMovement->HomingTargetComponent = HomingTarget->GetRootComponent();
+			}
+			else
+			{
+				// trick 17&4: make the Homing Target Component garbage collected using a middle man that is garbage collected
+				Projectile->HomingTargetSceneComponent = NewObject<USceneComponent>(USceneComponent::StaticClass());
+				Projectile->HomingTargetSceneComponent->SetWorldLocation(ProjectileTargetLocation);
+				Projectile->ProjectileMovement->HomingTargetComponent = Projectile->HomingTargetSceneComponent;
+			}
+			Projectile->ProjectileMovement->HomingAccelerationMagnitude = FMath::FRandRange(this->HomingAccelerationMin, this->HomingAccelerationMax);
+			Projectile->ProjectileMovement->bIsHomingProjectile = this->bLaunchHomingProjectiles;
+
+			Projectile->FinishSpawning(SpawnTransform); //has to be called due to using ActorDeferred
+		}
+	}
+	else
+	{
+		SpawnProjectile(ProjectileTargetLocation, SocketTag, bPitchOverride, Pitch);
+	}
 }

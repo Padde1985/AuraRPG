@@ -137,6 +137,11 @@ void AAuraCharacterBase::Knockback(const FVector& Force)
 	LaunchCharacter(Force, true, true);
 }
 
+USkeletalMeshComponent* AAuraCharacterBase::GetWeapon_Implementation()
+{
+	return this->Weapon;
+}
+
 // _Implementation for Multicast functions required
 void AAuraCharacterBase::MulitcastHandleDeath_Implementation(const FVector& DeathImpulse)
 {

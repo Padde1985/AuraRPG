@@ -37,13 +37,23 @@ void AAuraProjectile::Destroyed()
 	// in case of client -> handle sound and impact effect before actually destroying the object and avoid calling the overlap event
 	if (!this->bHit && !HasAuthority())	this->OnHit();
 
+	if (this->FlySoundComponent)
+	{
+		this->FlySoundComponent->Stop();
+		this->FlySoundComponent->DestroyComponent();
+	}
+
 	Super::Destroyed();
 }
 
 void AAuraProjectile::OnHit()
 {
 	UGameplayStatics::PlaySoundAtLocation(this, this->ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
-	if (this->FlySoundComponent) this->FlySoundComponent->Stop();
+	if (this->FlySoundComponent)
+	{
+		this->FlySoundComponent->Stop();
+		this->FlySoundComponent->DestroyComponent();
+	}
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, this->ImpactEffect, GetActorLocation());
 	this->bHit = true;
 }
@@ -54,6 +64,7 @@ void AAuraProjectile::BeginPlay()
 	Super::BeginPlay();
 
 	SetLifeSpan(this->LifeSpan);
+	SetReplicateMovement(true);
 
 	this->Sphere->OnComponentBeginOverlap.AddDynamic(this, &AAuraProjectile::OnSphereOverlap);
 	this->FlySoundComponent = UGameplayStatics::SpawnSoundAttached(this->FlySound, GetRootComponent());
@@ -61,6 +72,8 @@ void AAuraProjectile::BeginPlay()
 
 void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (!IsValid(this->DamageEffectParams.SourceAbilitySystemComponent)) return;
+
 	AActor* SourceAvatarActor = this->DamageEffectParams.SourceAbilitySystemComponent->GetAvatarActor();
 	if (SourceAvatarActor == OtherActor) return;
 	if (!UAuraAbilitysystemLibrary::IsNotFriend(SourceAvatarActor, OtherActor)) return;

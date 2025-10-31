@@ -12,6 +12,7 @@ class UAuraInputConfig;
 class UAuraAbilitySystemComponent;
 class USplineComponent;
 class UDamageTextComponent;
+class UNiagaraSystem;
 
 struct FInputActionValue;
 
@@ -33,6 +34,7 @@ protected:
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true")) TObjectPtr<UInputMappingContext> AuraContext;
 	UPROPERTY(VisibleAnywhere) TObjectPtr<USplineComponent> Spline;
+	UPROPERTY(EditDefaultsOnly) TObjectPtr<UNiagaraSystem> ClickNiagaraSystem;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true")) UInputAction* MoveAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true")) UInputAction* ShiftAction;
 	UPROPERTY(EditDefaultsOnly, Category = "Input") TObjectPtr<UAuraInputConfig> InputConfig;

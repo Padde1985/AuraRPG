@@ -10,6 +10,7 @@
 #include "NavigationPath.h"
 #include "UI/Widget/DamageTextComponent.h"
 #include "GameFramework/Character.h"
+#include "NiagaraFunctionLibrary.h"
 
 // enable replication for mulitplayer
 AAuraPlayerController::AAuraPlayerController()
@@ -104,6 +105,16 @@ void AAuraPlayerController::ShiftReleased()
 // trace object under cursor and check what has to be highlighted and unhighlighted
 void AAuraPlayerController::CursorTrace()
 {
+	if (GetASC() && GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_CursorTrace))
+	{
+		if (this->LastActor) this->LastActor->UnHighlightActor();
+		if (this->ThisActor) this->ThisActor->UnHighlightActor();
+		this->LastActor = nullptr;
+		this->ThisActor = nullptr;
+
+		return;
+	}
+
 	GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, this->CursorHit);
 	if (CursorHit.bBlockingHit)
 	{
@@ -135,16 +146,22 @@ void AAuraPlayerController::CursorTrace()
 // Ability was just pressed and released immediately
 void AAuraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 {
+	if (GetASC() && GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_InputPressed)) return;
+
 	if(InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB))
 	{
 		this->bTargeting = this->ThisActor ? true : false;
 		this->bAutoRunning = false;
 	}
+
+	if (GetASC()) GetASC()->AbilityInputTagPressed(InputTag);
 }
 
 // Ability button was released
 void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
+	if (GetASC() && GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_InputReleased)) return;
+
 	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB))
 	{
 		if (this->GetASC())	this->GetASC()->AbilityInputTagReleased(InputTag);
@@ -173,6 +190,11 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 					this->bAutoRunning = true;
 				}
 			}
+
+			if (GetASC() && !GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_InputPressed))
+			{
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, this->ClickNiagaraSystem, this->CachedDestination);
+			}
 		}
 		this->FollowTime = 0.f;
 		this->bTargeting = false;
@@ -182,6 +204,8 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 // Ability button is held down
 void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
+	if (GetASC() && GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_InputHeld)) return;
+
 	// handle all inputs but the LMB
 	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB))
 	{

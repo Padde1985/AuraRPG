@@ -13,6 +13,7 @@ class AURA_API UAuraDamageGameplayAbility : public UAuraGameplayAbility
 public:
 	UFUNCTION(BlueprintCallable) void CauseDamage(AActor* TargetActor);
 	UFUNCTION(BlueprintPure) FDamageEffectParams MakeDamageEffectParamsFromClassDefaults(AActor* TargetActor = nullptr) const;
+	UFUNCTION(BlueprintPure) float GetDamageAtLevel() const;
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Classes", meta = (AllowPrivateAccess = "true")) TSubclassOf<UGameplayEffect> DamageEffectClass;

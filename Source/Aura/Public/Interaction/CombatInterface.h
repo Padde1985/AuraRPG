@@ -44,6 +44,7 @@ public:
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) FVector GetCombatSocketLocation(const FGameplayTag& MontageTag);
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable) void UpdateWarpTarget(const FVector& FacingTarget);
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable) void SetInShockLoop(bool bInLoop);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) UAnimMontage* GetHitReactMontage(); // automatically creates the _implementation function
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) bool IsDead() const;
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) AActor* GetAvatar();
@@ -54,4 +55,5 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) void UpdateMinionCount(int32 Amount);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) ECharacterClass GetCharacterClass();
 	UFUNCTION(BlueprintNativeEvent) int32 GetLevel(); // no pure function (=0), otherwise even the Base class had to implement this function
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) USkeletalMeshComponent* GetWeapon();
 };
