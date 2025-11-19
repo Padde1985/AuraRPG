@@ -28,6 +28,8 @@ AAuraEnemy::AAuraEnemy()
 	bUseControllerRotationYaw = false;
 
 	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+
+	BaseWalkSpeed = 250.f;
 }
 
 // highlight actor on mouse over
@@ -90,7 +92,7 @@ void AAuraEnemy::BeginPlay()
 void AAuraEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
 {
 	this->bHitReacting = NewCount > 0;
-	GetCharacterMovement()->MaxWalkSpeed = this->bHitReacting ? 0.f : this->BaseWalkSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = this->bHitReacting ? 0.f : BaseWalkSpeed;
 	if(this->AIController && this->AIController->GetBlackboardComponent()) this->AIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), this->bHitReacting);
 }
 
@@ -141,9 +143,17 @@ void AAuraEnemy::InitAbilityActorInfo()
 	if(HasAuthority()) InitializeDefaultAttributes();
 
 	OnASCRegistered.Broadcast(AbilitySystemComponent);
+	AbilitySystemComponent->RegisterGameplayTagEvent(FAuraGameplayTags::Get().Debuff_Stun, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AAuraEnemy::StunTagChanged);
 }
 
 void AAuraEnemy::InitializeDefaultAttributes() const
 {
 	UAuraAbilitysystemLibrary::InitializeDefaultAttributes(this->CharacterClass, this->EnemyLevel, this, AbilitySystemComponent);
+}
+
+void AAuraEnemy::StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	Super::StunTagChanged(CallbackTag, NewCount);
+
+	if (this->AIController && this->AIController->GetBlackboardComponent()) this->AIController->GetBlackboardComponent()->SetValueAsBool(FName("Stunned"), bIsStunned);
 }

@@ -24,6 +24,7 @@ public:
 	FOnASCRegistered OnASCRegistered;
 	FOnDeath OnDeath;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const;
 	virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) override;
@@ -37,7 +38,7 @@ public:
 	virtual int32 GetMinionCount_Implementation() override;
 	virtual void UpdateMinionCount_Implementation(int32 Amount) override;
 	virtual ECharacterClass GetCharacterClass_Implementation() override;
-	virtual FOnASCRegistered GetOnASCRegisteredDelegate() override;
+	virtual FOnASCRegistered& GetOnASCRegisteredDelegate() override;
 	virtual FOnDeath GetOnDeathDelegate() override;
 	virtual void Knockback(const FVector& Force) override;
 	virtual USkeletalMeshComponent* GetWeapon_Implementation() override;
@@ -61,12 +62,18 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "", meta = (AllowPrivateAccess = "true")) USoundBase* DeathSound;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults", meta = (AllowPrivateAccess = "true")) ECharacterClass CharacterClass = ECharacterClass::Warrior;
 	UPROPERTY(VisibleAnywhere) TObjectPtr<UDebuffNiagaraComponent> BurnDebuffComponent;
+	UPROPERTY(VisibleAnywhere) TObjectPtr<UDebuffNiagaraComponent> StunDebuffComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true")) float BaseWalkSpeed = 600.f;
+	UPROPERTY(ReplicatedUsing = OnRep_Stunned, BlueprintReadOnly) bool bIsStunned = false;
+	UPROPERTY(ReplicatedUsing = OnRep_Stunned, BlueprintReadOnly) bool bIsBurned = false; //needed for CLient Replication to show particle system
 
 	bool bIsDead = false;
 	int32 MinionCount = 0;
 
 	UFUNCTION(BlueprintImplementableEvent) void StartDissolveTimeline(UMaterialInstanceDynamic* DynamicMaterialInstance);
 	UFUNCTION(BlueprintImplementableEvent) void StartWeaponDissolveTimeline(UMaterialInstanceDynamic* DynamicMaterialInstance);
+	UFUNCTION() virtual void OnRep_Stunned();
+	UFUNCTION() virtual void OnRep_Burned();
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -75,6 +82,7 @@ protected:
 	virtual void InitializeDefaultAttributes() const;
 	void AddCharacterAbilities();
 	void Dissolve();
+	virtual void StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Abilities", meta = (AllowPrivateAccess = "true")) TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;

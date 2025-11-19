@@ -35,6 +35,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UNiagaraComponent> LevelUpNiagaraComponent;
 
 	virtual void InitAbilityActorInfo() override;
+	virtual void OnRep_Stunned() override;
+	virtual void OnRep_Burned() override;
 
 private:
 	UPROPERTY(VisibleAnywhere) TObjectPtr<UCameraComponent> CameraComponent;

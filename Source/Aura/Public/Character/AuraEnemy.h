@@ -38,11 +38,11 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void InitAbilityActorInfo() override;
 	virtual void InitializeDefaultAttributes() const override;
+	virtual void StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount) override;
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character Class Defaults", meta = (AllowPrivateAccess = "true")) int32 EnemyLevel = 1;
 	UPROPERTY(BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true")) bool bHitReacting;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true")) float BaseWalkSpeed = 250.f;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true")) float LifeSpan = 5.f;
 	UPROPERTY(EditAnywhere, Category = "AI", meta = (AllowPrivateAccess = "true")) TObjectPtr<UBehaviorTree> BehaviorTree;
 	UPROPERTY() TObjectPtr<AAuraAIController> AIController;

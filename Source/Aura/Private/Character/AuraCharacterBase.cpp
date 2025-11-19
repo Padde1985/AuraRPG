@@ -10,6 +10,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 AAuraCharacterBase::AAuraCharacterBase()
@@ -20,6 +22,10 @@ AAuraCharacterBase::AAuraCharacterBase()
 	this->BurnDebuffComponent->SetupAttachment(GetRootComponent());
 	this->BurnDebuffComponent->DebuffTag = FAuraGameplayTags::Get().Debuff_Burn;
 
+	this->StunDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>("Stun Debuff Component");
+	this->StunDebuffComponent->SetupAttachment(GetRootComponent());
+	this->StunDebuffComponent->DebuffTag = FAuraGameplayTags::Get().Debuff_Stun;
+
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECollisionResponse::ECR_Ignore);
@@ -29,6 +35,14 @@ AAuraCharacterBase::AAuraCharacterBase()
 	this->Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
 	this->Weapon->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
 	this->Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void AAuraCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AAuraCharacterBase, bIsStunned);
+	DOREPLIFETIME(AAuraCharacterBase, bIsBurned);
 }
 
 // returns ability system component of character
@@ -122,7 +136,7 @@ ECharacterClass AAuraCharacterBase::GetCharacterClass_Implementation()
 	return this->CharacterClass;
 }
 
-FOnASCRegistered AAuraCharacterBase::GetOnASCRegisteredDelegate()
+FOnASCRegistered& AAuraCharacterBase::GetOnASCRegisteredDelegate()
 {
 	return this->OnASCRegistered;
 }
@@ -140,6 +154,20 @@ void AAuraCharacterBase::Knockback(const FVector& Force)
 USkeletalMeshComponent* AAuraCharacterBase::GetWeapon_Implementation()
 {
 	return this->Weapon;
+}
+
+void AAuraCharacterBase::StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	this->bIsStunned = NewCount > 0;
+	GetCharacterMovement()->MaxWalkSpeed = this->bIsStunned ? 0.f : BaseWalkSpeed;
+}
+
+void AAuraCharacterBase::OnRep_Stunned()
+{
+}
+
+void AAuraCharacterBase::OnRep_Burned()
+{
 }
 
 // _Implementation for Multicast functions required
@@ -163,6 +191,9 @@ void AAuraCharacterBase::MulitcastHandleDeath_Implementation(const FVector& Deat
 	this->Dissolve();
 
 	this->bIsDead = true;
+
+	this->BurnDebuffComponent->Deactivate();
+	this->StunDebuffComponent->Deactivate();
 
 	this->OnDeath.Broadcast(this);
 }

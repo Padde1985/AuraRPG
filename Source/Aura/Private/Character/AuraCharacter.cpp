@@ -8,6 +8,7 @@
 #include "NiagaraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "AuraGameplayTags.h"
 
 // set some default values
 AAuraCharacter::AAuraCharacter()
@@ -32,7 +33,7 @@ AAuraCharacter::AAuraCharacter()
 
 	CharacterClass = ECharacterClass::Elementalist;
 
-	this->LevelUpNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>("LevelUpNIagaraComponent");
+	this->LevelUpNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>("LevelUpNiagaraComponent");
 	this->LevelUpNiagaraComponent->SetupAttachment(GetRootComponent());
 	this->LevelUpNiagaraComponent->bAutoActivate = false;
 }
@@ -167,6 +168,7 @@ void AAuraCharacter::InitAbilityActorInfo()
 	AbilitySystemComponent = AuraPlayerState->GetAbilitySystemComponent();
 	AttributeSet = AuraPlayerState->GetAttributeSet();
 	OnASCRegistered.Broadcast(AbilitySystemComponent);
+	AbilitySystemComponent->RegisterGameplayTagEvent(FAuraGameplayTags::Get().Debuff_Stun, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AAuraCharacter::StunTagChanged);
 
 	if (AAuraPlayerController* AuraPlayerController = Cast<AAuraPlayerController>(GetController()))
 	{
@@ -176,4 +178,39 @@ void AAuraCharacter::InitAbilityActorInfo()
 		}
 	}
 	InitializeDefaultAttributes();
+}
+
+void AAuraCharacter::OnRep_Stunned()
+{
+	if (UAuraAbilitySystemComponent* ASC = Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent))
+	{
+		FGameplayTagContainer BlockedTags;
+		const FAuraGameplayTags& StunTags = FAuraGameplayTags::Get();
+		BlockedTags.AddTag(StunTags.Player_Block_CursorTrace);
+		BlockedTags.AddTag(StunTags.Player_Block_InputHeld);
+		BlockedTags.AddTag(StunTags.Player_Block_InputPressed);
+		BlockedTags.AddTag(StunTags.Player_Block_InputReleased);
+		if (bIsStunned)
+		{
+			ASC->AddLooseGameplayTags(BlockedTags);
+			this->StunDebuffComponent->Activate();
+		}
+		else
+		{
+			ASC->RemoveLooseGameplayTags(BlockedTags);
+			this->StunDebuffComponent->Deactivate();
+		}
+	}
+}
+
+void AAuraCharacter::OnRep_Burned()
+{
+	if (bIsBurned)
+	{
+		this->BurnDebuffComponent->Activate();
+	}
+	else
+	{
+		this->BurnDebuffComponent->Deactivate();
+	}
 }

@@ -11,5 +11,5 @@ public class AuraTarget : TargetRules
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 
 		ExtraModuleNames.AddRange( new string[] { "Aura" } );
-	}
+    }
 }
