@@ -12,6 +12,7 @@
 #include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "AbilitySystem/Passive/PassiveNiagaraComponent.h"
 
 // Sets default values
 AAuraCharacterBase::AAuraCharacterBase()
@@ -35,6 +36,18 @@ AAuraCharacterBase::AAuraCharacterBase()
 	this->Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon");
 	this->Weapon->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
 	this->Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	this->EffectAttachComponent = CreateDefaultSubobject<USceneComponent>("Effect Attach Point");
+	this->EffectAttachComponent->SetupAttachment(GetRootComponent());
+	// keep the Component always in the same Orientation -> do not turn with the character
+	this->EffectAttachComponent->SetUsingAbsoluteRotation(true);
+	this->EffectAttachComponent->SetWorldRotation(FRotator::ZeroRotator);
+	this->HaloOfProtectionNiagaraComponent = CreateDefaultSubobject<UPassiveNiagaraComponent>("Halo Of Protection Comp");
+	this->HaloOfProtectionNiagaraComponent->SetupAttachment(this->EffectAttachComponent);
+	this->LifeSiphonNiagaraComponent = CreateDefaultSubobject<UPassiveNiagaraComponent>("Life Siphon Comp");
+	this->LifeSiphonNiagaraComponent->SetupAttachment(this->EffectAttachComponent);
+	this->ManaSiphonNiagaraComponent = CreateDefaultSubobject<UPassiveNiagaraComponent>("Mana Siphon Comp");
+	this->ManaSiphonNiagaraComponent->SetupAttachment(this->EffectAttachComponent);
 }
 
 void AAuraCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -43,6 +56,7 @@ void AAuraCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 
 	DOREPLIFETIME(AAuraCharacterBase, bIsStunned);
 	DOREPLIFETIME(AAuraCharacterBase, bIsBurned);
+	DOREPLIFETIME(AAuraCharacterBase, bIsBeingShocked);
 }
 
 // returns ability system component of character
@@ -141,7 +155,7 @@ FOnASCRegistered& AAuraCharacterBase::GetOnASCRegisteredDelegate()
 	return this->OnASCRegistered;
 }
 
-FOnDeath AAuraCharacterBase::GetOnDeathDelegate()
+FOnDeath& AAuraCharacterBase::GetOnDeathDelegate()
 {
 	return this->OnDeath;
 }
@@ -154,6 +168,16 @@ void AAuraCharacterBase::Knockback(const FVector& Force)
 USkeletalMeshComponent* AAuraCharacterBase::GetWeapon_Implementation()
 {
 	return this->Weapon;
+}
+
+bool AAuraCharacterBase::IsBeingShocked_Implementation()
+{
+	return this->bIsBeingShocked;
+}
+
+void AAuraCharacterBase::SetIsBeingShocked_Implementation(bool bInShock)
+{
+	this->bIsBeingShocked = bInShock;
 }
 
 void AAuraCharacterBase::StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount)

@@ -10,7 +10,8 @@
 #include "Interaction/PlayerInterface.h"
 #include "GameplayEffectComponents/TargetTagsGameplayEffectComponent.h"
 #include "AuraAbilityTypes.h"
-#include "Character/AuraCharacterBase.h"
+#include "GameplayEffect.h"
+#include "GameplayEffectTypes.h"
 
 // assign gameplay tags to each attribute
 UAuraAttributeSet::UAuraAttributeSet()
@@ -117,9 +118,12 @@ void UAuraAttributeSet::HandleIncomingDamage(FEffectProperties& Props)
 		const bool bFatal = NewHealth <= 0.f;
 		if (!bFatal)
 		{
-			FGameplayTagContainer TagContainer;
-			TagContainer.AddTag(FAuraGameplayTags::Get().Effects_HitReact);
-			Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+			if (Props.TargetCharacter->Implements<UCombatInterface>() && !ICombatInterface::Execute_IsBeingShocked(Props.TargetCharacter))
+			{
+				FGameplayTagContainer TagContainer;
+				TagContainer.AddTag(FAuraGameplayTags::Get().Effects_HitReact);
+				Props.TargetASC->TryActivateAbilitiesByTag(TagContainer);
+			}
 
 			const FVector& KnockbackForce = UAuraAbilitysystemLibrary::GetKnockbackForce(Props.ContextHandle);
 			if (!KnockbackForce.IsNearlyZero(1.f) && CombatInterface)
@@ -182,6 +186,8 @@ void UAuraAttributeSet::Debuff(const FEffectProperties& Props)
 
 	Component.SetAndApplyTargetTagChanges(TagContainer);
 
+	// new version for 5.7, does not work yet with Visual Studio 2026
+	//Effect->SetStackingType(EGameplayEffectStackingType::AggregateBySource);
 	Effect->StackingType = EGameplayEffectStackingType::AggregateBySource;
 	Effect->StackLimitCount = 1;
 
@@ -215,11 +221,19 @@ void UAuraAttributeSet::HandleIncomingXP(FEffectProperties& Props)
 
 		if (NumberOfLevelUps > 0)
 		{
-			const int32 AttributePointsReward = IPlayerInterface::Execute_GetAttributePointsReward(Props.SourceCharacter, CurrentLevel);
-			const int32 SpellPointsReward = IPlayerInterface::Execute_GetSpellPointsReward(Props.SourceCharacter, CurrentLevel);
 			IPlayerInterface::Execute_AddToPlayerLevel(Props.SourceCharacter, NumberOfLevelUps);
+
+			// get rewards for each level we leveled up
+			int32 AttributePointsReward = 0;
+			int32 SpellPointsReward = 0;
+			for (int32 i = 0; i < NumberOfLevelUps; i++)
+			{
+				AttributePointsReward += IPlayerInterface::Execute_GetAttributePointsReward(Props.SourceCharacter, CurrentLevel + i);
+				SpellPointsReward += IPlayerInterface::Execute_GetSpellPointsReward(Props.SourceCharacter, CurrentLevel + i);
+			}
 			IPlayerInterface::Execute_AddToAttributePoints(Props.SourceCharacter, AttributePointsReward);
 			IPlayerInterface::Execute_AddToSpellPoints(Props.SourceCharacter, SpellPointsReward);
+			
 			IPlayerInterface::Execute_LevelUp(Props.SourceCharacter);
 			this->bTopOffHealth = true;
 			this->bTopOffMana = true;

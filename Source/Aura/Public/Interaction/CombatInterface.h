@@ -39,7 +39,7 @@ class AURA_API ICombatInterface
 public:
 	virtual void Die(const FVector& DeathImpulse) = 0;
 	virtual FOnASCRegistered& GetOnASCRegisteredDelegate() = 0;
-	virtual FOnDeath GetOnDeathDelegate() = 0;
+	virtual FOnDeath& GetOnDeathDelegate() = 0;
 	virtual void Knockback(const FVector& Force) = 0;
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) FVector GetCombatSocketLocation(const FGameplayTag& MontageTag);
@@ -56,4 +56,6 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) ECharacterClass GetCharacterClass();
 	UFUNCTION(BlueprintNativeEvent) int32 GetLevel(); // no pure function (=0), otherwise even the Base class had to implement this function
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) USkeletalMeshComponent* GetWeapon();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) bool IsBeingShocked();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) void SetIsBeingShocked(bool bShock);
 };

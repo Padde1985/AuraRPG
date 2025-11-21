@@ -11,6 +11,7 @@ class UAttributeSet;
 class UGameplayEffect;
 class UNiagaraSystem;
 class UDebuffNiagaraComponent;
+class UPassiveNiagaraComponent;
 
 UCLASS(Abstract)
 class AURA_API AAuraCharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
@@ -39,9 +40,11 @@ public:
 	virtual void UpdateMinionCount_Implementation(int32 Amount) override;
 	virtual ECharacterClass GetCharacterClass_Implementation() override;
 	virtual FOnASCRegistered& GetOnASCRegisteredDelegate() override;
-	virtual FOnDeath GetOnDeathDelegate() override;
+	virtual FOnDeath& GetOnDeathDelegate() override;
 	virtual void Knockback(const FVector& Force) override;
 	virtual USkeletalMeshComponent* GetWeapon_Implementation() override;
+	virtual bool IsBeingShocked_Implementation() override;
+	virtual void SetIsBeingShocked_Implementation(bool bInShock) override;
 	
 	UFUNCTION(NetMulticast, Reliable) virtual void MulitcastHandleDeath(const FVector& DeathImpulse); // handles stuff on client AND server
 
@@ -65,7 +68,8 @@ protected:
 	UPROPERTY(VisibleAnywhere) TObjectPtr<UDebuffNiagaraComponent> StunDebuffComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true")) float BaseWalkSpeed = 600.f;
 	UPROPERTY(ReplicatedUsing = OnRep_Stunned, BlueprintReadOnly) bool bIsStunned = false;
-	UPROPERTY(ReplicatedUsing = OnRep_Stunned, BlueprintReadOnly) bool bIsBurned = false; //needed for CLient Replication to show particle system
+	UPROPERTY(ReplicatedUsing = OnRep_Burned, BlueprintReadOnly) bool bIsBurned = false; //needed for CLient Replication to show particle system
+	UPROPERTY(Replicated, BlueprintReadOnly) bool bIsBeingShocked = false;
 
 	bool bIsDead = false;
 	int32 MinionCount = 0;
@@ -89,4 +93,8 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Abilities", meta = (AllowPrivateAccess = "true")) TArray<TSubclassOf<UGameplayAbility>> StartupPassives;
 	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true")) TObjectPtr<UAnimMontage> HitReactMontage;
 	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true")) TArray<FTaggedMontage> AttackMontages;
+	UPROPERTY(VisibleAnywhere) TObjectPtr<UPassiveNiagaraComponent> HaloOfProtectionNiagaraComponent;
+	UPROPERTY(VisibleAnywhere) TObjectPtr<UPassiveNiagaraComponent> LifeSiphonNiagaraComponent;
+	UPROPERTY(VisibleAnywhere) TObjectPtr<UPassiveNiagaraComponent> ManaSiphonNiagaraComponent;
+	UPROPERTY(VisibleAnywhere) TObjectPtr<USceneComponent> EffectAttachComponent;
 };

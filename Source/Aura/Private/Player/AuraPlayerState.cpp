@@ -12,7 +12,7 @@ AAuraPlayerState::AAuraPlayerState()
 	AttributeSet = CreateDefaultSubobject<UAuraAttributeSet>("AttributeSet");
 
 	// set how often the server wants to send updates
-	NetUpdateFrequency = 100.f;
+	SetNetUpdateFrequency(100.f);
 }
 
 UAbilitySystemComponent* AAuraPlayerState::GetAbilitySystemComponent() const
