@@ -59,6 +59,7 @@ public:
 	FGameplayTag Abilities_HitReact;
 	FGameplayTag Abilities_Fire_FireBolt;
 	FGameplayTag Abilities_Lightning_Electricute;
+	FGameplayTag Abilities_Arcane_ArcaneShards;
 	FGameplayTag Abilities_Status_Locked;
 	FGameplayTag Abilities_Status_Eligible;
 	FGameplayTag Abilities_Status_Unlocked;
@@ -72,6 +73,7 @@ public:
 	FGameplayTag Abilities_Passive_ManaSiphon;
 
 	FGameplayTag Cooldown_Fire_FireBolt;
+	FGameplayTag Cooldown_Arcane_ArcaneShards;
 
 	FGameplayTag CombatSocket_Weapon;
 	FGameplayTag CombatSocket_RightHand;

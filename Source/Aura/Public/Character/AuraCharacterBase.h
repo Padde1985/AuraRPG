@@ -24,6 +24,7 @@ public:
 
 	FOnASCRegistered OnASCRegistered;
 	FOnDeath OnDeath;
+	FOnDamageSignature OnDamageDelegate;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
@@ -45,6 +46,8 @@ public:
 	virtual USkeletalMeshComponent* GetWeapon_Implementation() override;
 	virtual bool IsBeingShocked_Implementation() override;
 	virtual void SetIsBeingShocked_Implementation(bool bInShock) override;
+	virtual float TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	virtual FOnDamageSignature& GetOnDamageDelegate() override;
 	
 	UFUNCTION(NetMulticast, Reliable) virtual void MulitcastHandleDeath(const FVector& DeathImpulse); // handles stuff on client AND server
 

@@ -4,6 +4,50 @@
 #include "Interaction/CombatInterface.h"
 #include "AbilitySystem/AuraAbilitysystemLibrary.h"
 
+FString UAuraBeamSpell::GetDescription(int32 Level)
+{
+	// get scaled damage from curve table for a given level
+	const int32 ScaledDamage = Damage.GetValueAtLevel(Level);
+	const float ManaCost = GetManaCost(Level);
+	const float Cooldown = GetCooldown(Level);
+
+	if (Level == 1)
+	{
+		return FString::Printf(TEXT("<Title>ELECTRICUTE</>\n\n"
+							   "<Default>Casts one beam of Lightning dealing </><Damage>%d </>"
+							   "<Default>lightning damage with a chance to stun</>\n\n"
+							   "<Small>Level: </><Level>%d</>\n"
+							   "<Small>ManaCost: </><ManaCost>%.0f</>\n"
+							   "<Small>Cooldown: </><Cooldown>%.1f</>"),
+							   ScaledDamage, Level, ManaCost, Cooldown);
+	}
+	else
+	{
+		return FString::Printf(TEXT("<Title>ELECTRICUTE</>\n\n"
+							   "<Default>Casts one beam of Lightning impacting %d additional targets dealing </><Damage>%d </>"
+							   "<Default>lightning damage with a chance to stun</>\n\n"
+							   "<Small>Level: </><Level>%d</>\n"
+							   "<Small>ManaCost: </><ManaCost>%.0f</>\n"
+							   "<Small>Cooldown: </><Cooldown>%.1f</>"),
+							   FMath::Min(Level - 1, this->MaxNumShockTargets), ScaledDamage, Level, ManaCost, Cooldown);
+	}
+}
+
+FString UAuraBeamSpell::GetNextLevelDescription(int32 Level)
+{
+	const int32 ScaledDamage = Damage.GetValueAtLevel(Level);
+	const float ManaCost = GetManaCost(Level);
+	const float Cooldown = GetCooldown(Level);
+
+	return FString::Printf(TEXT("<Title>Next Level</>\n\n"
+						   "<Default>Casts one beam of Lightning impacting %d additional targets dealing </><Damage>%d </>"
+						   "<Default>lightning damage with a chance to stun</>\n\n"
+						   "<Small>Level: </><Level>%d</>\n"
+						   "<Small>ManaCost: </><ManaCost>%.0f</>\n"
+						   "<Small>Cooldown: </><Cooldown>%.1f</>"),
+						   FMath::Min(Level - 1, this->MaxNumShockTargets), ScaledDamage, Level, ManaCost, Cooldown);
+}
+
 void UAuraBeamSpell::StoreMouseDataInfo(const FHitResult& HitResult)
 {
 	if (HitResult.bBlockingHit)

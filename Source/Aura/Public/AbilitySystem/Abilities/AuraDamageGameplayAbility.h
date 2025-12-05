@@ -12,7 +12,7 @@ class AURA_API UAuraDamageGameplayAbility : public UAuraGameplayAbility
 
 public:
 	UFUNCTION(BlueprintCallable) void CauseDamage(AActor* TargetActor);
-	UFUNCTION(BlueprintPure) FDamageEffectParams MakeDamageEffectParamsFromClassDefaults(AActor* TargetActor = nullptr) const;
+	UFUNCTION(BlueprintPure) FDamageEffectParams MakeDamageEffectParamsFromClassDefaults(AActor* TargetActor = nullptr, FVector InRadialDamageOrigin = FVector::ZeroVector) const;
 	UFUNCTION(BlueprintPure) float GetDamageAtLevel() const;
 	
 protected:
@@ -27,4 +27,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Damage", meta = (AllowPrivateAccess = "true")) float DeathImpulseMagnitude = 1000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Damage", meta = (AllowPrivateAccess = "true")) float KnockbackForceMagnitude = 1000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Damage", meta = (AllowPrivateAccess = "true")) float KnockbackChance = 0.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Damage", meta = (AllowPrivateAccess = "true")) bool bIsRadialDamage = false;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage", meta = (AllowPrivateAccess = "true")) float RadialDamageInnerRadius = 0.f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage", meta = (AllowPrivateAccess = "true")) float RadialDamageOuterRadius = 0.f;
 };

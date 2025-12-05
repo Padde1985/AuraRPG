@@ -27,6 +27,14 @@ bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bo
 		if (this->DamageType.IsValid()) RepBits |= 1 << 13;
 		if (!this->DeathImpulse.IsZero()) RepBits |= 1 << 14;
 		if (!this->KnockbackForce.IsZero()) RepBits |= 1 << 15;
+
+		if (this->bIsRadialDamage)
+		{
+			RepBits |= 1 << 16;
+			if(this->RadialDamageInnerRadius > 0.f) RepBits |= 1 << 17;
+			if(this->RadialDamageOuterRadius > 0.f) RepBits |= 1 << 18;
+			if(!this->RadialDamageOrigin.IsZero()) RepBits |= 1 << 19;
+		}
 	}
 
 	Ar.SerializeBits(&RepBits, 15);
@@ -75,6 +83,13 @@ bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bo
 	}
 	if (RepBits & (1 << 14)) this->DeathImpulse.NetSerialize(Ar, Map, bOutSuccess); // Vectors can be seralized easily
 	if (RepBits & (1 << 15)) this->KnockbackForce.NetSerialize(Ar, Map, bOutSuccess);
+	if (RepBits & (1 << 16))
+	{
+		Ar << this->bIsRadialDamage;
+		if (RepBits & (1 << 17)) Ar << this->RadialDamageInnerRadius;
+		if (RepBits & (1 << 18)) Ar << this->RadialDamageOuterRadius;
+		if (RepBits & (1 << 19)) this->RadialDamageOrigin.NetSerialize(Ar, Map, bOutSuccess);
+	}
 
 	if (Ar.IsLoading())
 	{
@@ -185,4 +200,44 @@ FVector FAuraGameplayEffectContext::GetKnockbackForce() const
 void FAuraGameplayEffectContext::SetKnockbackForce(const FVector& Force)
 {
 	this->KnockbackForce = Force;
+}
+
+bool FAuraGameplayEffectContext::IsRadialDamage() const
+{
+	return this->bIsRadialDamage;
+}
+
+void FAuraGameplayEffectContext::SetIsRadialDamage(const bool bIsRadialDamageIn)
+{
+	this->bIsRadialDamage = bIsRadialDamageIn;
+}
+
+float FAuraGameplayEffectContext::GetRadialDamageInnerRadius() const
+{
+	return this->RadialDamageInnerRadius;
+}
+
+void FAuraGameplayEffectContext::SetRadialDamageInnerRadius(const float Radius)
+{
+	this->RadialDamageInnerRadius = Radius;
+}
+
+float FAuraGameplayEffectContext::GetRadialDamageOuterRadius() const
+{
+	return this->RadialDamageOuterRadius;
+}
+
+void FAuraGameplayEffectContext::SetRadialDamageOuterRadius(const float Radius)
+{
+	this->RadialDamageOuterRadius = Radius;
+}
+
+FVector FAuraGameplayEffectContext::GetRadialDamageOrigin() const
+{
+	return this->RadialDamageOrigin;
+}
+
+void FAuraGameplayEffectContext::SetRadialDamageOrigin(const FVector Origin)
+{
+	this->RadialDamageOrigin = Origin;
 }

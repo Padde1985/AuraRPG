@@ -5,6 +5,7 @@
 #include "AbilitySystem/AuraAbilitysystemLibrary.h"
 #include "Interaction/CombatInterface.h"
 #include "AuraAbilityTypes.h"
+#include "Kismet/GameplayStatics.h"
 
 UExecCalc_Damage::UExecCalc_Damage()
 {
@@ -39,6 +40,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	}
 
 	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
+	FGameplayEffectContextHandle EffectContextHandle = Spec.GetContext();
 
 	// Gather tags from source and target
 	FAggregatorEvaluateParameters EvaluationParameters;
@@ -65,8 +67,33 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 		// Get Damage set by caller magnitude and calculate Block chance
 		float DamageTypeValue = Spec.GetSetByCallerMagnitude(DamageTypeToResistance.Key, false);
+		if (DamageTypeValue <= 0.f) continue;
 		// Damage * Resistance in percent
 		DamageTypeValue *= ((100.f - ResistanceValue) / 100.f);
+
+		// 1.1 check Radial Damage
+		if (UAuraAbilitysystemLibrary::IsRadialDamage(EffectContextHandle))
+		{
+			if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(TargetAvatar))
+			{
+				CombatInterface->GetOnDamageDelegate().AddLambda([&](float DamageAmount) // & is capturing just everything by reference
+				{
+					DamageTypeValue = DamageAmount;
+				});
+			}
+
+			// calling the following function will trigger TakeDamage on the victim and therefore call the DamageDelegate to propagate the damage value
+			UGameplayStatics::ApplyRadialDamageWithFalloff(
+				TargetAvatar, DamageTypeValue, 0.f,
+				UAuraAbilitysystemLibrary::GetRadialDamageOrigin(EffectContextHandle),
+				UAuraAbilitysystemLibrary::GetRadialDamageInnerRadius(EffectContextHandle),
+				UAuraAbilitysystemLibrary::GetRadialDamageOuterRadius(EffectContextHandle),
+				1.f, UDamageType::StaticClass(),
+				TArray<AActor*>(),
+				SourceAvatar, nullptr
+			);
+		}
+
 		Damage += DamageTypeValue;
 	}
 
@@ -76,7 +103,6 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	TargetBlockChance = FMath::Max<float>(TargetBlockChance, 0.f);
 
 	const bool bIsBlocked = FMath::RandRange(1, 100) < TargetBlockChance;
-	FGameplayEffectContextHandle EffectContextHandle = Spec.GetContext();
 	UAuraAbilitysystemLibrary::SetIsBlockedHit(EffectContextHandle, bIsBlocked);
 
 	Damage = bIsBlocked ? Damage / 2.f : Damage;
@@ -113,6 +139,8 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 	const float EffectiveArmor = TargetArmor * (100 - SourceArmorPenetration * ArmorPenetrationCoeff) / 100.f;
 	Damage *= (100 - EffectiveArmor / EffectiveArmorCoeff) / 100.f;
+
+	// 6. Check for Passive Spell gameplaytags and adjust damage output
 
 	// 5. apply critical hits
 	const float EffectiveCritChance = SourceCritChance - TargetCritResistance * EffectiveCritCoeff;

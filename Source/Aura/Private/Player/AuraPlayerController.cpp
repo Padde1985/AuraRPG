@@ -6,11 +6,13 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AuraGameplayTags.h"
 #include "Components/SplineComponent.h"
+#include "Components/DecalComponent.h"
 #include "NavigationSystem.h"
 #include "NavigationPath.h"
 #include "UI/Widget/DamageTextComponent.h"
 #include "GameFramework/Character.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Actor/MagicCircle.h"
 
 // enable replication for mulitplayer
 AAuraPlayerController::AAuraPlayerController()
@@ -18,6 +20,20 @@ AAuraPlayerController::AAuraPlayerController()
 	bReplicates = true;
 
 	this->Spline = CreateDefaultSubobject<USplineComponent>("Spline"); // path finding
+}
+
+void AAuraPlayerController::ShowMagicCircle(UMaterialInterface* DecalMaterial)
+{
+	if (!IsValid(this->MagicCircle))
+	{
+		this->MagicCircle = GetWorld()->SpawnActor<AMagicCircle>(this->MagicCircleClass);
+		if (DecalMaterial) this->MagicCircle->MagicCircleDecal->SetMaterial(0, DecalMaterial);
+	}
+}
+
+void AAuraPlayerController::HideMagicCircle()
+{
+	if(IsValid(this->MagicCircle)) this->MagicCircle->Destroy();
 }
 
 void AAuraPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter, bool bIsBlocked, bool bIsCritical)
@@ -73,6 +89,7 @@ void AAuraPlayerController::PlayerTick(float DeltaTime)
 
 	this->CursorTrace();
 	this->AutoRun();
+	this->UpdateMagicCircleLocation();
 }
 
 // move character with keys
@@ -115,7 +132,8 @@ void AAuraPlayerController::CursorTrace()
 		return;
 	}
 
-	GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, false, this->CursorHit);
+	const ECollisionChannel TraceChannel = IsValid(this->MagicCircle) ? ECC_ExcludePlayers : ECC_Visibility;
+	GetHitResultUnderCursor(TraceChannel, false, this->CursorHit);
 	if (CursorHit.bBlockingHit)
 	{
 		this->LastActor = this->ThisActor;
@@ -253,5 +271,13 @@ void AAuraPlayerController::AutoRun()
 
 		const float DistanceToDestination = (LocationOnSpline - this->CachedDestination).Length();
 		if (DistanceToDestination <= this->AutoRunAcceptanceRadius) this->bAutoRunning = false;
+	}
+}
+
+void AAuraPlayerController::UpdateMagicCircleLocation()
+{
+	if (IsValid(this->MagicCircle))
+	{
+		this->MagicCircle->SetActorLocation(this->CursorHit.ImpactPoint);
 	}
 }

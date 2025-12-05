@@ -13,22 +13,26 @@ struct FDamageEffectParams
 
 	FDamageEffectParams() {};
 
-	UPROPERTY() TObjectPtr<UObject> WorldContextObject = nullptr;
-	UPROPERTY() TSubclassOf<UGameplayEffect> DamageGameplayEffectClass = nullptr;
-	UPROPERTY() TObjectPtr<UAbilitySystemComponent> SourceAbilitySystemComponent = nullptr;
-	UPROPERTY() TObjectPtr<UAbilitySystemComponent> TargetAbilitySystemComponent = nullptr;
-	UPROPERTY() float BaseDamage = 0.f;
-	UPROPERTY() float AbilityLevel = 1.f;
-	UPROPERTY() FGameplayTag DamageType = FGameplayTag();
-	UPROPERTY() float DebuffChance = 0.f;
-	UPROPERTY() float DebuffDamage = 0.f;
-	UPROPERTY() float DebuffDuration = 0.f;
-	UPROPERTY() float DebuffFrequency = 0.f;
-	UPROPERTY() float DeathImpulseMagnitude = 0.f;
-	UPROPERTY() FVector DeathImpulse = FVector::ZeroVector;
-	UPROPERTY() float KnockbackForceMagnitude = 0.f;
-	UPROPERTY() FVector KnockbackForce = FVector::ZeroVector;
-	UPROPERTY() float KnockbackChance = 0.f;
+	UPROPERTY(BlueprintReadWrite) TObjectPtr<UObject> WorldContextObject = nullptr;
+	UPROPERTY(BlueprintReadWrite) TSubclassOf<UGameplayEffect> DamageGameplayEffectClass = nullptr;
+	UPROPERTY(BlueprintReadWrite) TObjectPtr<UAbilitySystemComponent> SourceAbilitySystemComponent = nullptr;
+	UPROPERTY(BlueprintReadWrite) TObjectPtr<UAbilitySystemComponent> TargetAbilitySystemComponent = nullptr;
+	UPROPERTY(BlueprintReadWrite) float BaseDamage = 0.f;
+	UPROPERTY(BlueprintReadWrite) float AbilityLevel = 1.f;
+	UPROPERTY(BlueprintReadWrite) FGameplayTag DamageType = FGameplayTag();
+	UPROPERTY(BlueprintReadWrite) float DebuffChance = 0.f;
+	UPROPERTY(BlueprintReadWrite) float DebuffDamage = 0.f;
+	UPROPERTY(BlueprintReadWrite) float DebuffDuration = 0.f;
+	UPROPERTY(BlueprintReadWrite) float DebuffFrequency = 0.f;
+	UPROPERTY(BlueprintReadWrite) float DeathImpulseMagnitude = 0.f;
+	UPROPERTY(BlueprintReadWrite) FVector DeathImpulse = FVector::ZeroVector;
+	UPROPERTY(BlueprintReadWrite) float KnockbackForceMagnitude = 0.f;
+	UPROPERTY(BlueprintReadWrite) FVector KnockbackForce = FVector::ZeroVector;
+	UPROPERTY(BlueprintReadWrite) float KnockbackChance = 0.f;
+	UPROPERTY(BlueprintReadWrite) bool bIsRadialDamage = false;
+	UPROPERTY(BlueprintReadWrite) float RadialDamageInnerRadius = 0.f;
+	UPROPERTY(BlueprintReadWrite) float RadialDamageOuterRadius = 0.f;
+	UPROPERTY(BlueprintReadWrite) FVector RadialDamageOrigin = FVector::ZeroVector;
 };
 
 USTRUCT(BlueprintType)
@@ -64,6 +68,14 @@ public:
 	void SetDeathImpulse(const FVector& Impulse);
 	FVector GetKnockbackForce() const;
 	void SetKnockbackForce(const FVector& Force);
+	bool IsRadialDamage() const;
+	void SetIsRadialDamage(const bool bIsRadialDamageIn);
+	float GetRadialDamageInnerRadius() const;
+	void SetRadialDamageInnerRadius(const float Radius);
+	float GetRadialDamageOuterRadius() const;
+	void SetRadialDamageOuterRadius(const float Radius);
+	FVector GetRadialDamageOrigin() const;
+	void SetRadialDamageOrigin(const FVector Origin);
 
 protected:
 	UPROPERTY() bool bIsCriticalHit = false;
@@ -74,6 +86,10 @@ protected:
 	UPROPERTY() float DebuffFrequency = 0.f;
 	UPROPERTY() FVector DeathImpulse = FVector::ZeroVector;
 	UPROPERTY() FVector KnockbackForce = FVector::ZeroVector;
+	UPROPERTY() bool bIsRadialDamage = false;
+	UPROPERTY() float RadialDamageInnerRadius = 0.f;
+	UPROPERTY() float RadialDamageOuterRadius = 0.f;
+	UPROPERTY() FVector RadialDamageOrigin = FVector::ZeroVector;
 	
 	TSharedPtr<FGameplayTag> DamageType;
 };

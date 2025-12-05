@@ -87,6 +87,8 @@ void UAuraAbilitySystemComponent::ServerEquipAbility_Implementation(const FGamep
 					TryActivateAbility(AbilitySpec->Handle);
 					// activate the new Niagara component
 					this->MulticastActivatePassiveEffect(AbilityTag, true);
+					// to take some effect, grant a Tag here and then check it in damage effect calc to reduce damage, etc.
+					// to get health every so often, the tag then has to be checked in the attribute set
 				}
 			}
 			this->AssignSlotToAbility(*AbilitySpec, Slot);

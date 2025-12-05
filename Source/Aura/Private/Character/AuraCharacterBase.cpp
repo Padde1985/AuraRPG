@@ -180,6 +180,19 @@ void AAuraCharacterBase::SetIsBeingShocked_Implementation(bool bInShock)
 	this->bIsBeingShocked = bInShock;
 }
 
+float AAuraCharacterBase::TakeDamage(float Damage, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	const float DamageTaken = Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+	this->OnDamageDelegate.Broadcast(DamageTaken);
+
+	return DamageTaken;
+}
+
+FOnDamageSignature& AAuraCharacterBase::GetOnDamageDelegate()
+{
+	return this->OnDamageDelegate;
+}
+
 void AAuraCharacterBase::StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
 {
 	this->bIsStunned = NewCount > 0;

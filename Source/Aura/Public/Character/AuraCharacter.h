@@ -30,6 +30,8 @@ public:
 	virtual void AddToAttributePoints_Implementation(int32 InPoints) override;
 	virtual void AddToSpellPoints_Implementation(int32 InPoints) override;
 	virtual void AddToPlayerLevel_Implementation(int32 inPlayerLevel) override;
+	virtual void ShowMagicCircle_Implementation(UMaterialInterface* DecalMaterial) override;
+	virtual void HideMagicCircle_Implementation() override;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UNiagaraComponent> LevelUpNiagaraComponent;

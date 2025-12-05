@@ -13,6 +13,7 @@ class UAuraAbilitySystemComponent;
 class USplineComponent;
 class UDamageTextComponent;
 class UNiagaraSystem;
+class AMagicCircle;
 
 struct FInputActionValue;
 
@@ -25,6 +26,8 @@ public:
 	AAuraPlayerController();
 
 	UFUNCTION(Client, Reliable) void ShowDamageNumber(float DamageAmount, ACharacter* TargetCharacter, bool bIsBlocked, bool bIsCritical);
+	UFUNCTION(BlueprintCallable) void ShowMagicCircle(UMaterialInterface* DecalMaterial);
+	UFUNCTION(BlueprintCallable) void HideMagicCircle();
 
 protected:
 	virtual void BeginPlay() override;
@@ -41,6 +44,7 @@ private:
 	UPROPERTY() TObjectPtr<UAuraAbilitySystemComponent> AuraAbilitySystemComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (AllowPrivateAccess = "true")) float AutoRunAcceptanceRadius = 50.f;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "", meta = (AllowPrivateAccess = "true"))TSubclassOf<UDamageTextComponent> DamageTextComponentClass;
+	UPROPERTY(EditDefaultsOnly) TSubclassOf<AMagicCircle> MagicCircleClass;
 
 	TScriptInterface<IEnemyInterface> LastActor; // TObjectPrt is only used for Objects, not interfaces
 	TScriptInterface<IEnemyInterface> ThisActor;
@@ -51,6 +55,7 @@ private:
 	bool bTargeting = false;
 	bool bShiftDown = false;
 	FHitResult CursorHit;
+	TObjectPtr<AMagicCircle> MagicCircle;
 
 	void Move(const FInputActionValue& InputActionValue);
 	void ShiftPressed();
@@ -61,4 +66,5 @@ private:
 	void AbilityInputTagHeld (FGameplayTag InputTag);
 	UAuraAbilitySystemComponent* GetASC();
 	void AutoRun();
+	void UpdateMagicCircleLocation();
 };

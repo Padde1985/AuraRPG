@@ -28,4 +28,6 @@ public:
 	UFUNCTION(BlueprintNativeEvent) void AddToPlayerLevel(int32 InPlayerLevel);
 	UFUNCTION(BlueprintNativeEvent) void AddToAttributePoints(int32 InPoints);
 	UFUNCTION(BlueprintNativeEvent) void AddToSpellPoints(int32 InPoints);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) void ShowMagicCircle(UMaterialInterface* DecalMaterial = nullptr);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) void HideMagicCircle();
 };
