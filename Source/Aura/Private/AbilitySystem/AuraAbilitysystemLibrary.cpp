@@ -358,7 +358,7 @@ TArray<FRotator> UAuraAbilitysystemLibrary::EvenlySpacedRotators(const FVector& 
 	if (Rotators > 1)
 	{
 		const FVector LeftOfSpread = Forward.RotateAngleAxis(-Spread / 2.f, FVector::UpVector);
-		const float DeltaSpread = Spread / (Rotators - 1);
+		const float DeltaSpread = Spread < 360.f ? Spread / (Rotators - 1) : 360.f / Rotators;
 
 		for (int32 i = 0; i < Rotators; i++)
 		{
@@ -381,7 +381,7 @@ TArray<FVector> UAuraAbilitysystemLibrary::EvenlyRotatedVectors(const FVector& F
 	if (Vectors > 1)
 	{
 		const FVector LeftOfSpread = Forward.RotateAngleAxis(-Spread / 2.f, FVector::UpVector);
-		const float DeltaSpread = Spread / (Vectors - 1);
+		const float DeltaSpread = Spread < 360.f ? Spread / (Vectors - 1) : 360.f / Vectors;
 
 		for (int32 i = 0; i < Vectors; i++)
 		{
@@ -492,4 +492,43 @@ void UAuraAbilitysystemLibrary::SetRadialDamageOrigin(UPARAM(ref)FGameplayEffect
 	{
 		AuraEffectContext->SetRadialDamageOrigin(Origin);
 	}
+}
+
+void UAuraAbilitysystemLibrary::SetIsRadialDamageEffectParam(UPARAM(ref)FDamageEffectParams& DamageEffectParams, bool bIsRadial, float InnerRadius, float OuterRadius, FVector Origin)
+{
+	DamageEffectParams.bIsRadialDamage = bIsRadial;
+	DamageEffectParams.RadialDamageInnerRadius = InnerRadius;
+	DamageEffectParams.RadialDamageOuterRadius = OuterRadius;
+	DamageEffectParams.RadialDamageOrigin = Origin;
+}
+
+void UAuraAbilitysystemLibrary::SetKnockbackDirection(UPARAM(ref)FDamageEffectParams& DamageEffectParams, FVector Direction, float Magnitude)
+{
+	Direction.Normalize();
+	if (Magnitude == 0.f)
+	{
+		DamageEffectParams.KnockbackForce = Direction * DamageEffectParams.KnockbackForceMagnitude;
+	}
+	else
+	{
+		DamageEffectParams.KnockbackForce = Direction * Magnitude;
+	}
+}
+
+void UAuraAbilitysystemLibrary::SetDeathImpulseDirection(UPARAM(ref)FDamageEffectParams& DamageEffectParams, FVector Direction, float Magnitude)
+{
+	Direction.Normalize();
+	if (Magnitude == 0.f)
+	{
+		DamageEffectParams.DeathImpulse = Direction * DamageEffectParams.DeathImpulseMagnitude;
+	}
+	else
+	{
+		DamageEffectParams.DeathImpulse = Direction * Magnitude;
+	}
+}
+
+void UAuraAbilitysystemLibrary::SetTargetEffectParamsASC(UPARAM(ref)FDamageEffectParams& DamageEffectParams, UAbilitySystemComponent* ASC)
+{
+	DamageEffectParams.TargetAbilitySystemComponent = ASC;
 }

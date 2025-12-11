@@ -58,6 +58,7 @@ public:
 	FGameplayTag Abilities_Summon;
 	FGameplayTag Abilities_HitReact;
 	FGameplayTag Abilities_Fire_FireBolt;
+	FGameplayTag Abilities_Fire_FireBlast;
 	FGameplayTag Abilities_Lightning_Electricute;
 	FGameplayTag Abilities_Arcane_ArcaneShards;
 	FGameplayTag Abilities_Status_Locked;
@@ -73,6 +74,7 @@ public:
 	FGameplayTag Abilities_Passive_ManaSiphon;
 
 	FGameplayTag Cooldown_Fire_FireBolt;
+	FGameplayTag Cooldown_Fire_FireBlast;
 	FGameplayTag Cooldown_Arcane_ArcaneShards;
 
 	FGameplayTag CombatSocket_Weapon;
@@ -91,6 +93,8 @@ public:
 	FGameplayTag Player_Block_InputHeld;
 	FGameplayTag Player_Block_InputReleased;
 	FGameplayTag Player_Block_CursorTrace;
+
+	FGameplayTag GameplayCue_FireBlast;
 
 	static const FAuraGameplayTags& Get();
 	static void InitializeNativeGameplayTags();
