@@ -9,7 +9,6 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/AuraAbilitysystemLibrary.h"
-#include "AuraAbilityTypes.h"
 
 // Sets default values
 AAuraProjectile::AAuraProjectile()

@@ -9,6 +9,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "AuraGameplayTags.h"
+#include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 
 // set some default values
 AAuraCharacter::AAuraCharacter()
@@ -211,12 +212,12 @@ void AAuraCharacter::OnRep_Stunned()
 		if (bIsStunned)
 		{
 			ASC->AddLooseGameplayTags(BlockedTags);
-			this->StunDebuffComponent->Activate();
+			StunDebuffComponent->Activate();
 		}
 		else
 		{
 			ASC->RemoveLooseGameplayTags(BlockedTags);
-			this->StunDebuffComponent->Deactivate();
+			StunDebuffComponent->Deactivate();
 		}
 	}
 }
@@ -225,10 +226,10 @@ void AAuraCharacter::OnRep_Burned()
 {
 	if (bIsBurned)
 	{
-		this->BurnDebuffComponent->Activate();
+		BurnDebuffComponent->Activate();
 	}
 	else
 	{
-		this->BurnDebuffComponent->Deactivate();
+		BurnDebuffComponent->Deactivate();
 	}
 }

@@ -13,6 +13,7 @@
 #include "GameFramework/Character.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Actor/MagicCircle.h"
+#include "../Aura.h"
 
 // enable replication for mulitplayer
 AAuraPlayerController::AAuraPlayerController()
