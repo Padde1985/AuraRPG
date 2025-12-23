@@ -22,11 +22,15 @@ public:
 	UPROPERTY(EditDefaultsOnly) FString StartingMapName;
 	UPROPERTY(EditDefaultsOnly) TSoftObjectPtr<UWorld> DefaultMap;
 	UPROPERTY(EditDefaultsOnly) TMap<FString, TSoftObjectPtr<UWorld>> Maps;
+	UPROPERTY(EditDefaultsOnly) FName DefaultPlayerStartTag;
 
 	void SaveSlotData(UMVVM_LoadSlot* LoadSlot, int32 SlotIndex);
 	ULoadMenuSaveGame* GetSaveSlotData(const FString& SlotName, int32 SlotIndex) const;
 	static void DeleteSlot(const FString& SlotName, int32 SlotIndex);
 	void TravelToMap(UMVVM_LoadSlot* Slot);
+	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
+	ULoadMenuSaveGame* RetrieveInGameSaveData();
+	void SaveInGameProgressData(ULoadMenuSaveGame* SaveObject);
 
 protected:
 	virtual void BeginPlay() override;

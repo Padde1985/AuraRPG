@@ -3,6 +3,7 @@
 #include "Game/AuraGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Game/LoadMenuSaveGame.h"
+#include "Game/AuraGameInstance.h"
 
 UMVVM_LoadSlot* UMVVM_LoadMenu::GetLoadSLotViewModelByIndex(int32 Index) const
 {
@@ -14,10 +15,17 @@ void UMVVM_LoadMenu::NewSlotButtonPressed(int32 Slot, const FString& EnterName)
 	AAuraGameModeBase* GameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this));
 	this->LoadSlots[Slot]->SetPlayerName(EnterName);
 	this->LoadSlots[Slot]->SetMapName(GameMode->StartingMapName);
+	this->LoadSlots[Slot]->SetPlayerLevel(1);
 	this->LoadSlots[Slot]->SlotStatus = ESaveSlotStatus::Taken;
+	this->LoadSlots[Slot]->PlayerStartTag = GameMode->DefaultPlayerStartTag;
 
 	GameMode->SaveSlotData(this->LoadSlots[Slot], Slot);
 	this->LoadSlots[Slot]->InitializeSlot();
+
+	UAuraGameInstance* GameInstance = Cast<UAuraGameInstance>(GameMode->GetGameInstance());
+	GameInstance->LoadSlotName = this->LoadSlots[Slot]->GetLoadSlotName();
+	GameInstance->LoadSlotIndex = Slot;
+	GameInstance->PlayerStartTag = GameMode->DefaultPlayerStartTag;
 }
 
 void UMVVM_LoadMenu::NewGameButtonPressed(int32 Slot)
@@ -58,6 +66,11 @@ void UMVVM_LoadMenu::DeleteButtonPressed()
 void UMVVM_LoadMenu::PlayButtonPressed()
 {
 	AAuraGameModeBase* AuraGameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this));
+	UAuraGameInstance* GameInstance = Cast<UAuraGameInstance>(AuraGameMode->GetGameInstance());
+	GameInstance->PlayerStartTag = this->SelectedSlot->PlayerStartTag;
+	GameInstance->LoadSlotName = this->SelectedSlot->GetLoadSlotName();
+	GameInstance->LoadSlotIndex = this->SelectedSlot->GetSlotIndex();
+
 	if(IsValid(this->SelectedSlot)) AuraGameMode->TravelToMap(this->SelectedSlot);
 }
 
@@ -89,6 +102,8 @@ void UMVVM_LoadMenu::LoadData()
 		LoadSlot.Value->SetPlayerName(SaveObject->PlayerName);
 		LoadSlot.Value->SetMapName(SaveObject->MapName);
 		LoadSlot.Value->SlotStatus = SaveObject->SaveSlotStatus;
+		LoadSlot.Value->PlayerStartTag = SaveObject->PlayerStartTag;
+		LoadSlot.Value->SetPlayerLevel(SaveObject->PlayerLevel);
 		LoadSlot.Value->InitializeSlot();
 	}
 }

@@ -10,6 +10,7 @@ class UAttributeSet;
 class ULevelInfo;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerStatChanged, int32 /*StatValue*/);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnLevelChanged, int32 /*StatValue*/, bool /*bLevelUp*/);
 
 UCLASS()
 class AURA_API AAuraPlayerState : public APlayerState, public IAbilitySystemInterface
@@ -20,7 +21,7 @@ public:
 	UPROPERTY(EditDefaultsOnly) TObjectPtr<ULevelInfo> LevelInfo;
 
 	FOnPlayerStatChanged OnXPChangedDelegate;
-	FOnPlayerStatChanged OnLevelChangedDelegate;
+	FOnLevelChanged OnLevelChangedDelegate;
 	FOnPlayerStatChanged OnAttributePointsChangedDelegate;
 	FOnPlayerStatChanged OnSpellPointsChangedDelegate;
 
@@ -37,8 +38,10 @@ public:
 	int32 GetXP() const;
 	void AddToAP(int32 AP);
 	int32 GetAP() const;
+	void SetAP(int32 InAP);
 	void AddToSP(int32 SP);
 	int32 GetSP() const;
+	void SetSP(int32 InSP);
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "", meta = (AllowPrivateAccess = "true")) TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;

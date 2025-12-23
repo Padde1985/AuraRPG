@@ -30,4 +30,5 @@ public:
 	UFUNCTION(BlueprintNativeEvent) void AddToSpellPoints(int32 InPoints);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) void ShowMagicCircle(UMaterialInterface* DecalMaterial = nullptr);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) void HideMagicCircle();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) void SaveProgress(const FName& CheckpointTag);
 };

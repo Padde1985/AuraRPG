@@ -33,7 +33,9 @@ class AURA_API UCharacterClassInfo : public UDataAsset
 	GENERATED_BODY()
 	
 public:
+	UPROPERTY(EditDefaultsOnly, Category = "Common Class Defaults") TSubclassOf<UGameplayEffect> PrimaryAttributes_SetByCaller;
 	UPROPERTY(EditDefaultsOnly, Category = "Common Class Defaults") TSubclassOf<UGameplayEffect> SecondaryAttributes;
+	UPROPERTY(EditDefaultsOnly, Category = "Common Class Defaults") TSubclassOf<UGameplayEffect> SecondaryAttributes_Infinite;
 	UPROPERTY(EditDefaultsOnly, Category = "Common Class Defaults") TSubclassOf<UGameplayEffect> VitalAttributes;
 	UPROPERTY(EditDefaultsOnly, Category = "Character Class Defaults") TMap<ECharacterClass, FCharacterClassDefaultsInfo> CharacterClassInformation;
 	UPROPERTY(EditDefaultsOnly, Category = "Common Class Defaults", meta = (AllowPrivateAccess = "true")) TArray<TSubclassOf<UGameplayAbility>> CommonAbilities;

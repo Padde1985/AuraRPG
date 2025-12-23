@@ -21,7 +21,10 @@ void UOverlayWidgetController::BroadcastInitialValues()
 void UOverlayWidgetController::BindCallbacksToDependencies()
 {
 	GetAuraPS()->OnXPChangedDelegate.AddUObject(this, &UOverlayWidgetController::OnXPChanged);
-	GetAuraPS()->OnLevelChangedDelegate.AddUObject(this, &UOverlayWidgetController::OnLevelChanged);
+	GetAuraPS()->OnLevelChangedDelegate.AddLambda([this](int32 NewLevel, bool bLevelUp)
+	{
+		OnPlayerLevelChangedDelegate.Broadcast(NewLevel, bLevelUp);
+	});
 
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetAuraAS()->GetHealthAttribute()).AddLambda(
 		[this](const FOnAttributeChangeData& Data)	{ this->OnHealthChanged.Broadcast(Data.NewValue); });
@@ -82,11 +85,6 @@ void UOverlayWidgetController::OnXPChanged(int32 NewXP)
 
 		this->OnXPPercentChanged.Broadcast(XPBarPercent);
 	}
-}
-
-void UOverlayWidgetController::OnLevelChanged(int32 NewLevel)
-{
-	this->OnPlayerLevelChangedDelegate.Broadcast(NewLevel);
 }
 
 void UOverlayWidgetController::OnAbilityEquipped(const FGameplayTag& AbilityTag, const FGameplayTag& Status, const FGameplayTag& Slot, const FGameplayTag& PreviousSlot) const

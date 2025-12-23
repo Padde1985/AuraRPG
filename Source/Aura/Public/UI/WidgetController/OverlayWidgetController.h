@@ -22,6 +22,7 @@ USTRUCT(BlueprintType) struct FUIWidgetRow : public FTableRowBase
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageRowWidgetSignature, FUIWidgetRow, Row);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnLevelChangedSignature, int32, NewLevel, bool, bLevelUp);
 
 UCLASS(BlueprintType, Blueprintable)
 class AURA_API UOverlayWidgetController : public UAuraWidgetController
@@ -35,7 +36,7 @@ public:
 	UPROPERTY(BlueprintAssignable, category = "GAS|Attributes") FOnAttributeChangedSignature OnMaxManaChanged;
 	UPROPERTY(BlueprintAssignable, category = "GAS|XP") FOnAttributeChangedSignature OnXPPercentChanged;
 	UPROPERTY(BlueprintAssignable, category = "GAS|Messages") FMessageRowWidgetSignature MessageWidgetRowDelegate;
-	UPROPERTY(BlueprintAssignable, Category = "GAS|Level") FOnPlayerStatChangedSignature OnPlayerLevelChangedDelegate;
+	UPROPERTY(BlueprintAssignable, Category = "GAS|Level") FOnLevelChangedSignature OnPlayerLevelChangedDelegate;
 
 	virtual void BroadcastInitialValues() override;
 	virtual void BindCallbacksToDependencies() override;
@@ -45,7 +46,6 @@ protected:
 
 	template<typename T> T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag);
 	void OnXPChanged(int32 NewXP);
-	void OnLevelChanged(int32 NewLevel);
 	void OnAbilityEquipped(const FGameplayTag& AbilityTag, const FGameplayTag& Status, const FGameplayTag& Slot, const FGameplayTag& PreviousSlot) const;
 };
 

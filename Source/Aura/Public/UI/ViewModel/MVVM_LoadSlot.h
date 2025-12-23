@@ -17,6 +17,7 @@ public:
 	UPROPERTY(BlueprintAssignable) FSetWidgetSwitcherIndex SetWidgetSwitcherIndex;
 	UPROPERTY(BlueprintAssignable) FEnableSelectSlotButton EnableSelectSlotButton;
 	UPROPERTY() TEnumAsByte<ESaveSlotStatus> SlotStatus;
+	UPROPERTY() FName PlayerStartTag;
 
 	void InitializeSlot();
 	void SetLoadSlotName(FString inLoadSlotName);
@@ -27,10 +28,13 @@ public:
 	int32 GetSlotIndex() const;
 	void SetMapName(FString InMapName);
 	FString GetMapName() const;
+	void SetPlayerLevel(int32 InLevel);
+	int32 GetPlayerLevel() const;
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, FieldNotify, Setter, Getter, meta = (AllowPrivateAccess = "true")) FString LoadSlotName;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, FieldNotify, Setter, Getter, meta = (AllowPrivateAccess = "true")) FString PlayerName;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, FieldNotify, Setter, Getter, meta = (AllowPrivateAccess = "true")) FString MapName;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, FieldNotify, Setter, Getter, meta = (AllowPrivateAccess = "true")) int32 SlotIndex;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, FieldNotify, Setter, Getter, meta = (AllowPrivateAccess = "true")) int32 PlayerLevel;
 };

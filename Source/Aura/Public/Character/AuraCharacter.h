@@ -32,6 +32,7 @@ public:
 	virtual void AddToPlayerLevel_Implementation(int32 inPlayerLevel) override;
 	virtual void ShowMagicCircle_Implementation(UMaterialInterface* DecalMaterial) override;
 	virtual void HideMagicCircle_Implementation() override;
+	virtual void SaveProgress_Implementation(const FName& CheckpointTag) override;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UNiagaraComponent> LevelUpNiagaraComponent;
@@ -39,6 +40,7 @@ protected:
 	virtual void InitAbilityActorInfo() override;
 	virtual void OnRep_Stunned() override;
 	virtual void OnRep_Burned() override;
+	void LoadProgress();
 
 private:
 	UPROPERTY(VisibleAnywhere) TObjectPtr<UCameraComponent> CameraComponent;
