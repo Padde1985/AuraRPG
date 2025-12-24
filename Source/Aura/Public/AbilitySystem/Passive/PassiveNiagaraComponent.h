@@ -5,9 +5,8 @@
 #include "GameplayTagContainer.h"
 #include "PassiveNiagaraComponent.generated.h"
 
-/**
- * 
- */
+class UAuraAbilitySystemComponent;
+
 UCLASS()
 class AURA_API UPassiveNiagaraComponent : public UNiagaraComponent
 {
@@ -23,4 +22,5 @@ protected:
 	void OnPassiveActivate(const FGameplayTag& AbilityTag, bool bActivate);
 
 private:
+	void ActivateIfEquipped(UAuraAbilitySystemComponent* AuraASC);
 };

@@ -5,6 +5,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/AuraAbilitysystemLibrary.h"
 #include "AbilitySystem/Data/AbilityInfo.h"
+#include "Game/LoadMenuSaveGame.h"
 
 void UAuraAbilitySystemComponent::ServerUpgradeAttribute_Implementation(const FGameplayTag& AttributeTag)
 {
@@ -75,6 +76,9 @@ void UAuraAbilitySystemComponent::ServerEquipAbility_Implementation(const FGamep
 						this->MulticastActivatePassiveEffect(this->GetAbilityTagFromSpec(*SpecWithSlot), false);
 						this->DeactivatePassiveAbility.Broadcast(GetAbilityTagFromSpec(*SpecWithSlot));
 					}
+					//change status from equipped to unlocked for passive and offensive abilities
+					SpecWithSlot->GetDynamicSpecSourceTags().RemoveTag(this->GetStatusFromSpec(*SpecWithSlot));
+					SpecWithSlot->GetDynamicSpecSourceTags().AddTag(GameplayTags.Abilities_Status_Unlocked);
 
 					this->ClearSlot(SpecWithSlot);
 				}
@@ -90,6 +94,9 @@ void UAuraAbilitySystemComponent::ServerEquipAbility_Implementation(const FGamep
 					// to take some effect, grant a Tag here and then check it in damage effect calc to reduce damage, etc.
 					// to get health every so often, the tag then has to be checked in the attribute set
 				}
+				// when assigning to any slot the first time, set status to equipped
+				AbilitySpec->GetDynamicSpecSourceTags().RemoveTag(GetStatusFromSpec(*AbilitySpec));
+				AbilitySpec->GetDynamicSpecSourceTags().AddTag(GameplayTags.Abilities_Status_Equipped);
 			}
 			this->AssignSlotToAbility(*AbilitySpec, Slot);
 
@@ -134,6 +141,7 @@ void UAuraAbilitySystemComponent::AddPassiveAbilities(const TArray<TSubclassOf<U
 	for (const TSubclassOf<UGameplayAbility> AbilityClass : Passives)
 	{
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1);
+		AbilitySpec.GetDynamicSpecSourceTags().AddTag(FAuraGameplayTags::Get().Abilities_Status_Equipped);
 		GiveAbilityAndActivateOnce(AbilitySpec);
 	}
 }
@@ -364,6 +372,34 @@ bool UAuraAbilitySystemComponent::AbilityHasSlot(FGameplayAbilitySpec* Spec, con
 		if (Tag.MatchesTagExact(Slot)) return true;
 	}
 	return false;
+}
+
+void UAuraAbilitySystemComponent::AddCharacterAbilitiesFromSaveData(ULoadMenuSaveGame* SaveData)
+{
+	FAuraGameplayTags Tags = FAuraGameplayTags::Get();
+	for (const FSavedAbility& Data : SaveData->SavedAbilities)
+	{
+		const TSubclassOf<UGameplayAbility> LoadedAbilityClass = Data.GameplayAbility;
+
+		FGameplayAbilitySpec LoadedAbilitySpec = FGameplayAbilitySpec(LoadedAbilityClass, Data.Level);
+		LoadedAbilitySpec.GetDynamicSpecSourceTags().AddTag(Data.AbilitySlot);
+		LoadedAbilitySpec.GetDynamicSpecSourceTags().AddTag(Data.AbilityStatus);
+
+		if (Data.AbilityType == Tags.Abilities_Type_Offensive)
+		{
+			GiveAbility(LoadedAbilitySpec);
+		}
+		else if(Data.AbilityType == Tags.Abilities_Type_Passive)
+		{
+			GiveAbility(LoadedAbilitySpec);
+			if (Data.AbilityStatus.MatchesTagExact(Tags.Abilities_Status_Equipped))
+			{
+				TryActivateAbility(LoadedAbilitySpec.Handle);
+			}
+		}
+	}
+	this->bStartupAbilitiesGiven = true;
+	this->AbilitiesGiven.Broadcast();
 }
 
 bool UAuraAbilitySystemComponent::SlotIsEmpty(const FGameplayTag& Slot)

@@ -4,6 +4,7 @@
 #include "Character/AuraCharacterBase.h"
 #include "Interaction/EnemyInterface.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
+#include "Interaction/SaveInterface.h"
 #include "AuraEnemy.generated.h"
 
 class UWidgetComponent;
@@ -11,7 +12,7 @@ class UBehaviorTree;
 class AAuraAIController;
 
 UCLASS()
-class AURA_API AAuraEnemy : public AAuraCharacterBase, public IEnemyInterface
+class AURA_API AAuraEnemy : public AAuraCharacterBase, public IEnemyInterface, public ISaveInterface
 {
 	GENERATED_BODY()
 	

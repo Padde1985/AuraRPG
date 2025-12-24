@@ -31,6 +31,8 @@ public:
 	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 	ULoadMenuSaveGame* RetrieveInGameSaveData();
 	void SaveInGameProgressData(ULoadMenuSaveGame* SaveObject);
+	void SaveWorldState(UWorld* World) const;
+	void LoadWorldState(UWorld* World) const;
 
 protected:
 	virtual void BeginPlay() override;

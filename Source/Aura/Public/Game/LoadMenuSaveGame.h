@@ -2,7 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
+#include "GameplayTagContainer.h"
 #include "LoadMenuSaveGame.generated.h"
+
+class UGameplayAbility;
 
 UENUM(BlueprintType)
 enum ESaveSlotStatus
@@ -11,6 +14,49 @@ enum ESaveSlotStatus
 	EnterName,
 	Taken
 };
+
+USTRUCT()
+struct FSavedActor
+{
+	GENERATED_BODY()
+
+	UPROPERTY() FName ActorName = FName();
+	UPROPERTY() FTransform Transform = FTransform();
+	UPROPERTY() TArray<uint8> Bytes; // serialized variables from the Actor with a special specifier
+};
+
+inline bool operator==(const FSavedActor& Left, const FSavedActor& Right)
+{
+	return Left.ActorName == Right.ActorName;
+}
+
+USTRUCT()
+struct FSavedMap
+{
+	GENERATED_BODY()
+
+	UPROPERTY() FString MapAssetName = FString();
+	UPROPERTY() TArray<FSavedActor> SavedActors;
+};
+
+USTRUCT(BlueprintType)
+struct FSavedAbility
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Class defaults") TSubclassOf<UGameplayAbility> GameplayAbility;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Class defaults") FGameplayTag AbilityTag = FGameplayTag();
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Class defaults") FGameplayTag AbilityStatus = FGameplayTag();
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Class defaults") FGameplayTag AbilitySlot = FGameplayTag();
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Class defaults") FGameplayTag AbilityType = FGameplayTag();
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Class defaults") int32 Level;
+};
+
+// overload == operator, otherwise AddUnique throws an error
+inline bool operator==(const FSavedAbility& Left, const FSavedAbility& Right)
+{
+	return Left.AbilityTag.MatchesTagExact(Right.AbilityTag);
+}
 
 UCLASS()
 class AURA_API ULoadMenuSaveGame : public USaveGame
@@ -33,4 +79,9 @@ public:
 	UPROPERTY() float Resilience = 0.f;
 	UPROPERTY() float Vigor = 0.f;
 	UPROPERTY() bool bFirstTimeLoadIn = true;
+	UPROPERTY() TArray<FSavedAbility> SavedAbilities;
+	UPROPERTY() TArray<FSavedMap> SavedMaps;
+
+	FSavedMap GetSavedMapByMapName(const FString& InMapName) const;
+	bool HasMap(const FString& InMapName);
 };

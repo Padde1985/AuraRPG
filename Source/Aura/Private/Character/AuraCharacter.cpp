@@ -15,6 +15,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "AbilitySystem/AuraAttributeSet.h"
 #include "AbilitySystem/AuraAbilitysystemLibrary.h"
+#include "AbilitySystem/Data/AbilityInfo.h"
 
 // set some default values
 AAuraCharacter::AAuraCharacter()
@@ -53,9 +54,10 @@ void AAuraCharacter::PossessedBy(AController* NewController)
 	this->InitAbilityActorInfo();
 	this->LoadProgress();
 
-	//if (AAuraGameModeBase* GameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this)))
-	//{
-	//}
+	if (AAuraGameModeBase* GameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this)))
+	{
+		GameMode->LoadWorldState(GetWorld());
+	}
 }
 
 // get the player level for ability value calculation
@@ -178,13 +180,36 @@ void AAuraCharacter::SaveProgress_Implementation(const FName& CheckpointTag)
 			SaveData->XP = SavePlayerState->GetXP();
 			SaveData->AttributePoints = SavePlayerState->GetAP();
 			SaveData->SpellPoints = SavePlayerState->GetSP();
-			// Get Base values instead of the current values -> ignores any current buffs or debuffs
-			SaveData->Strength = UAuraAttributeSet::GetStrengthAttribute().GetGameplayAttributeData(GetAttributeSet())->GetBaseValue();
-			SaveData->Intelligence = UAuraAttributeSet::GetIntelligenceAttribute().GetGameplayAttributeData(GetAttributeSet())->GetBaseValue();
-			SaveData->Resilience = UAuraAttributeSet::GetResilienceAttribute().GetGameplayAttributeData(GetAttributeSet())->GetBaseValue();
-			SaveData->Vigor = UAuraAttributeSet::GetVigorAttribute().GetGameplayAttributeData(GetAttributeSet())->GetBaseValue();
-			SaveData->bFirstTimeLoadIn = false;
 		}
+		// Get Base values instead of the current values -> ignores any current buffs or debuffs
+		SaveData->Strength = UAuraAttributeSet::GetStrengthAttribute().GetGameplayAttributeData(GetAttributeSet())->GetBaseValue();
+		SaveData->Intelligence = UAuraAttributeSet::GetIntelligenceAttribute().GetGameplayAttributeData(GetAttributeSet())->GetBaseValue();
+		SaveData->Resilience = UAuraAttributeSet::GetResilienceAttribute().GetGameplayAttributeData(GetAttributeSet())->GetBaseValue();
+		SaveData->Vigor = UAuraAttributeSet::GetVigorAttribute().GetGameplayAttributeData(GetAttributeSet())->GetBaseValue();
+			
+		SaveData->bFirstTimeLoadIn = false;
+
+		if (!HasAuthority()) return;
+
+		UAuraAbilitySystemComponent* ASC = Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent);
+		FForeachAbility SavedAbilityDelegate;
+		SaveData->SavedAbilities.Empty();
+		SavedAbilityDelegate.BindLambda([this, ASC, SaveData](const FGameplayAbilitySpec& AbilitySpec)
+		{
+			FSavedAbility SavedAbility;
+			const FGameplayTag AbilityTag = ASC->GetAbilityTagFromSpec(AbilitySpec);
+			FAuraAbilityInfo Info = UAuraAbilitysystemLibrary::GetAbilityInfo(this)->FindAbilityInfoForTag(AbilityTag);
+
+			SavedAbility.GameplayAbility = Info.Ability;
+			SavedAbility.Level = AbilitySpec.Level;
+			SavedAbility.AbilitySlot = ASC->GetSlotFromAbilityTag(AbilityTag);
+			SavedAbility.AbilityStatus = ASC->GetStatusFromAbilityTag(AbilityTag);
+			SavedAbility.AbilityTag = AbilityTag;
+			SavedAbility.AbilityType = Info.AbilityType;
+
+			SaveData->SavedAbilities.AddUnique(SavedAbility);
+		});
+		ASC->ForEachAbility(SavedAbilityDelegate);
 
 		GameMode->SaveInGameProgressData(SaveData);
 	}
@@ -282,6 +307,12 @@ void AAuraCharacter::LoadProgress()
 		}
 		else
 		{
+			if (UAuraAbilitySystemComponent* ASC = Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent))
+			{
+				ASC->AddCharacterAbilitiesFromSaveData(SaveData);
+				ASC->UpdateAbilityStatuses(SaveData->PlayerLevel); //update eligible abilities
+			}
+
 			if (AAuraPlayerState* AuraPlayerState = Cast<AAuraPlayerState>(GetPlayerState()))
 			{
 				AuraPlayerState->SetPlayerLevel(SaveData->PlayerLevel);
