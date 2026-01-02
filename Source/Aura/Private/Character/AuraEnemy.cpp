@@ -33,14 +33,14 @@ AAuraEnemy::AAuraEnemy()
 }
 
 // highlight actor on mouse over
-void AAuraEnemy::HighlightActor()
+void AAuraEnemy::HighlightActor_Implementation()
 {
 	GetMesh()->SetRenderCustomDepth(true);
 	Weapon->SetRenderCustomDepth(true);
 }
 
 // remove red frame around actor when mouse over is finished
-void AAuraEnemy::UnHighlightActor()
+void AAuraEnemy::UnHighlightActor_Implementation()
 {
 	GetMesh()->SetRenderCustomDepth(false);
 	Weapon->SetRenderCustomDepth(false);
@@ -101,6 +101,8 @@ void AAuraEnemy::Die(const FVector& DeathImpulse)
 	SetLifeSpan(this->LifeSpan);
 	if (this->AIController) this->AIController->GetBlackboardComponent()->SetValueAsBool(FName("Dead"), true);
 
+	this->SpawnLoot();
+
 	Super::Die(DeathImpulse);
 }
 
@@ -131,6 +133,21 @@ void AAuraEnemy::Knockback(const FVector& Force)
 {
 	Super::Knockback(Force);
 	this->AIController->StopMovement();
+}
+
+void AAuraEnemy::SetMoveToLocation_Implementation(FVector& OutDestination)
+{
+	//explicitly do nothing
+}
+
+void AAuraEnemy::SetEnemyLevel(int32 Level)
+{
+	this->EnemyLevel = Level;
+}
+
+void AAuraEnemy::SetCharacterClass(ECharacterClass Class)
+{
+	CharacterClass = Class;
 }
 
 // set controll params

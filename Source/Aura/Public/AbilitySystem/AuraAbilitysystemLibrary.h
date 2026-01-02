@@ -12,6 +12,7 @@ class USpellMenuWidgetController;
 class AAuraHUD;
 class UAbilityInfo;
 class ULoadMenuSaveGame;
+class ULootTiers;
 struct FWidgetControllerParams;
 struct FDamageEffectParams;
 
@@ -68,4 +69,5 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AuraAbilitySystemLibrary|GameplayEffects") static void SetDeathImpulseDirection(UPARAM(ref)FDamageEffectParams& DamageEffectParams, FVector Direction, float Magnitude = 0.f);
 	UFUNCTION(BlueprintCallable, Category = "AuraAbilitySystemLibrary|GameplayEffects") static void SetTargetEffectParamsASC(UPARAM(ref)FDamageEffectParams& DamageEffectParams, UAbilitySystemComponent* ASC);
 	UFUNCTION(BlueprintCallable, Category = "AuraAbilitySystemLibrary|Character Class Defaults") static void InitializeDefaultAttributesFromSaveGame(const UObject* WorldContextObject, UAbilitySystemComponent* ASC, ULoadMenuSaveGame* SaveGame);
+	UFUNCTION(BlueprintCallable, Category = "AuraAbilitySystemLibrary|GameplayMechanics", meta = (DefaultToSelf = "WorldContextObject")) static ULootTiers* GetLootTiers(const UObject* WorldContextObject);
 };

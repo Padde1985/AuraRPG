@@ -13,6 +13,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AuraGameplayTags.h"
 #include "Game/LoadMenuSaveGame.h"
+#include "AbilitySystem/Data/LootTiers.h"
 
 // return the Widget Controller for the Overlay (Health Globe, etc.)
 UOverlayWidgetController* UAuraAbilitysystemLibrary::GetOverlayWidgetController(const UObject* WorldContextObject)
@@ -562,4 +563,12 @@ void UAuraAbilitysystemLibrary::InitializeDefaultAttributesFromSaveGame(const UO
 	VitalAttributesContextHandle.AddSourceObject(SourceAvatarActor);
 	const FGameplayEffectSpecHandle VitalAttributesSpecHandle = ASC->MakeOutgoingSpec(CharacterClassInfo->VitalAttributes, 1.f, VitalAttributesContextHandle);
 	ASC->ApplyGameplayEffectSpecToSelf(*VitalAttributesSpecHandle.Data.Get());
+}
+
+ULootTiers* UAuraAbilitysystemLibrary::GetLootTiers(const UObject* WorldContextObject)
+{
+	const AAuraGameModeBase* AuraGameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
+	if (AuraGameMode == nullptr) return nullptr;
+
+	return AuraGameMode->LootTiers;
 }

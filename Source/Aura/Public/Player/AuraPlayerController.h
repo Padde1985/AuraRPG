@@ -7,15 +7,22 @@
 
 class UInputMappingContext;
 class UInputAction;
-class IEnemyInterface;
 class UAuraInputConfig;
 class UAuraAbilitySystemComponent;
 class USplineComponent;
 class UDamageTextComponent;
 class UNiagaraSystem;
 class AMagicCircle;
-
+class IHighlightInterface;
 struct FInputActionValue;
+
+enum ETargetingStatus
+{
+	TargetingEnemy,
+	TargetingNonEnemy,
+	TargetingMapEntrance,
+	NotTargeting
+};
 
 UCLASS()
 class AURA_API AAuraPlayerController : public APlayerController
@@ -46,16 +53,16 @@ private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "", meta = (AllowPrivateAccess = "true"))TSubclassOf<UDamageTextComponent> DamageTextComponentClass;
 	UPROPERTY(EditDefaultsOnly) TSubclassOf<AMagicCircle> MagicCircleClass;
 
-	TScriptInterface<IEnemyInterface> LastActor; // TObjectPrt is only used for Objects, not interfaces
-	TScriptInterface<IEnemyInterface> ThisActor;
+	TObjectPtr<AActor> LastActor;
+	TObjectPtr<AActor> ThisActor;
 	FVector CachedDestination = FVector::ZeroVector;
 	float FollowTime = 0.f;
 	float ShortPressThreshold = 0.5f;
 	bool bAutoRunning = false;
-	bool bTargeting = false;
 	bool bShiftDown = false;
 	FHitResult CursorHit;
 	TObjectPtr<AMagicCircle> MagicCircle;
+	ETargetingStatus TargetingStatus = ETargetingStatus::NotTargeting;
 
 	void Move(const FInputActionValue& InputActionValue);
 	void ShiftPressed();

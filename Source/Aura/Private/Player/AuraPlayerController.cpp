@@ -1,7 +1,6 @@
 #include "Player/AuraPlayerController.h"
 #include "EnhancedInputSubsystems.h"
 #include "Input/AuraInputComponent.h"
-#include "Interaction/EnemyInterface.h"
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AuraGameplayTags.h"
@@ -14,6 +13,8 @@
 #include "NiagaraFunctionLibrary.h"
 #include "Actor/MagicCircle.h"
 #include "../Aura.h"
+#include "Interaction/HighlightInterface.h"
+#include "Interaction/EnemyInterface.h"
 
 // enable replication for mulitplayer
 AAuraPlayerController::AAuraPlayerController()
@@ -125,8 +126,8 @@ void AAuraPlayerController::CursorTrace()
 {
 	if (GetASC() && GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_CursorTrace))
 	{
-		if (this->LastActor) this->LastActor->UnHighlightActor();
-		if (this->ThisActor) this->ThisActor->UnHighlightActor();
+		if (this->LastActor) IHighlightInterface::Execute_UnHighlightActor(this->LastActor);
+		if (this->ThisActor) IHighlightInterface::Execute_UnHighlightActor(this->ThisActor);
 		this->LastActor = nullptr;
 		this->ThisActor = nullptr;
 
@@ -138,7 +139,14 @@ void AAuraPlayerController::CursorTrace()
 	if (CursorHit.bBlockingHit)
 	{
 		this->LastActor = this->ThisActor;
-		this->ThisActor = CursorHit.GetActor(); // TScriptInterface takes care of the cast for us
+		if (IsValid(CursorHit.GetActor()) && CursorHit.GetActor()->Implements<UHighlightInterface>())
+		{
+			this->ThisActor = CursorHit.GetActor();
+		}
+		else
+		{
+			this->ThisActor = nullptr;
+		}
 
 		/*
 		Line trace from cursor. There are several scenarios
@@ -156,8 +164,8 @@ void AAuraPlayerController::CursorTrace()
 		*/
 		if (this->LastActor != this->ThisActor)
 		{
-			if (this->LastActor) this->LastActor->UnHighlightActor();
-			if (this->ThisActor) this->ThisActor->HighlightActor();
+			if (this->LastActor) IHighlightInterface::Execute_UnHighlightActor(this->LastActor);
+			if (this->ThisActor) IHighlightInterface::Execute_HighlightActor(this->ThisActor);
 		}
 	}
 }
@@ -169,7 +177,14 @@ void AAuraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 
 	if(InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB))
 	{
-		this->bTargeting = this->ThisActor ? true : false;
+		if (IsValid(this->ThisActor))
+		{
+			this->TargetingStatus = this->ThisActor->Implements<UEnemyInterface>() ? ETargetingStatus::TargetingEnemy : ETargetingStatus::TargetingNonEnemy;
+		}
+		else
+		{
+			this->TargetingStatus = ETargetingStatus::NotTargeting;
+		}
 		this->bAutoRunning = false;
 	}
 
@@ -190,11 +205,20 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 	if (this->GetASC())	this->GetASC()->AbilityInputTagReleased(InputTag);
 
 	// configuring auto run
-	if (!this->bTargeting && !this->bShiftDown)
+	if (this->TargetingStatus != ETargetingStatus::TargetingEnemy && !this->bShiftDown)
 	{
 		APawn* ControlledPawn = GetPawn();
 		if (this->FollowTime <= this->ShortPressThreshold && ControlledPawn)
 		{
+			if (IsValid(this->ThisActor))
+			{
+				IHighlightInterface::Execute_SetMoveToLocation(this->ThisActor, this->CachedDestination);
+			}
+			else if (GetASC() && !GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_InputPressed))
+			{
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, this->ClickNiagaraSystem, this->CachedDestination);
+			}
+
 			if (UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, ControlledPawn->GetActorLocation(), this->CachedDestination))
 			{
 				this->Spline->ClearSplinePoints();
@@ -202,21 +226,16 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 				{
 					this->Spline->AddSplinePoint(PointLoc, ESplineCoordinateSpace::World);
 				}
-				// reset Cached Destination to avoid infinite auro running when clicking on an area outside of the Nav Mesh volume
+				// reset Cached Destination to avoid infinite auto running when clicking on an area outside of the Nav Mesh volume
 				if (NavPath->PathPoints.Num() > 0)
 				{
 					this->CachedDestination = NavPath->PathPoints[NavPath->PathPoints.Num() - 1];
 					this->bAutoRunning = true;
 				}
 			}
-
-			if (GetASC() && !GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_InputPressed))
-			{
-				UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, this->ClickNiagaraSystem, this->CachedDestination);
-			}
 		}
 		this->FollowTime = 0.f;
-		this->bTargeting = false;
+		this->TargetingStatus = ETargetingStatus::NotTargeting;
 	}
 }
 
@@ -233,7 +252,7 @@ void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 	}
 	
 	// otherwise check if mouse cursor is over an enemy
-	if (this->bTargeting || this->bShiftDown)
+	if (this->TargetingStatus == ETargetingStatus::TargetingEnemy || this->bShiftDown)
 	{
 		if (this->GetASC())	this->GetASC()->AbilityInputTagHeld(InputTag);
 	}

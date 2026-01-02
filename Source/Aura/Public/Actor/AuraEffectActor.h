@@ -37,6 +37,8 @@ public:
 	// Sets default values for this actor's properties
 	AAuraEffectActor();
 
+	virtual void Tick(float DeltaTime) override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -50,9 +52,24 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effect", meta = (AllowPrivateAccess = "true")) EEffectRemovalPolicy InfiniteEffectRemovalPolicy = EEffectRemovalPolicy::RemoveOnEndOverlap;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effect", meta = (AllowPrivateAccess = "true")) EActorDestroyPolicy DestroyPolicy = EActorDestroyPolicy::DestroyOnEndOverlap;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effect", meta = (AllowPrivateAccess = "true")) bool bApplyEffectsToEnemies = false;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effect", meta = (AllowPrivateAccess = "true")) float ActorLevel = 1.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Applied Effect", meta = (AllowPrivateAccess = "true")) float ActorLevel = 1.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup Movement", meta = (AllowPrivateAccess = "true")) bool bRotates = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup Movement", meta = (AllowPrivateAccess = "true")) float RotationRate = 45.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup Movement", meta = (AllowPrivateAccess = "true")) bool bSinusoidalMovement = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup Movement", meta = (AllowPrivateAccess = "true")) float SineAmplitude = 1.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup Movement", meta = (AllowPrivateAccess = "true")) float SinePeriodConstant = 1.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup Movement", meta = (AllowPrivateAccess = "true")) FVector InitialLocation;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup Movement", meta = (AllowPrivateAccess = "true")) FVector CalculatedLocation;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pickup Movement", meta = (AllowPrivateAccess = "true")) FRotator CalculatedRotation;
 
 	UFUNCTION(BlueprintCallable) void ApplyEffectToTarget(AActor* TargetActor, TSubclassOf< UGameplayEffect> GamePlayEffectClass);
 	UFUNCTION(BlueprintCallable) void OnOverlap(AActor* TargetActor);
 	UFUNCTION(BlueprintCallable) void OnEndOverlap(AActor* TargetActor);
+	UFUNCTION(BlueprintCallable) void StartSinusoidalMovement();
+	UFUNCTION(BlueprintCallable) void StartRotation();
+
+private:
+	float RunningTime = 0.f;
+
+	void ItemMovememnt(float DeltaTime);
 };

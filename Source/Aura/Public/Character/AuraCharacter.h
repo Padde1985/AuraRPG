@@ -33,6 +33,7 @@ public:
 	virtual void ShowMagicCircle_Implementation(UMaterialInterface* DecalMaterial) override;
 	virtual void HideMagicCircle_Implementation() override;
 	virtual void SaveProgress_Implementation(const FName& CheckpointTag) override;
+	virtual void Die(const FVector& DeathImpulse) override;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UNiagaraComponent> LevelUpNiagaraComponent;
@@ -45,6 +46,9 @@ protected:
 private:
 	UPROPERTY(VisibleAnywhere) TObjectPtr<UCameraComponent> CameraComponent;
 	UPROPERTY(VisibleAnywhere) TObjectPtr<USpringArmComponent> CameraBoom;
+	UPROPERTY(EditDefaultsOnly) float DeathTime = 5.f;
+
+	FTimerHandle DeathTimer;
 
 	UFUNCTION(NetMulticast, Reliable) void MulticastLevelUpParticles() const;
 

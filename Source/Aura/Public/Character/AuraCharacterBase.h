@@ -73,8 +73,8 @@ protected:
 	UPROPERTY(ReplicatedUsing = OnRep_Stunned, BlueprintReadOnly) bool bIsStunned = false;
 	UPROPERTY(ReplicatedUsing = OnRep_Burned, BlueprintReadOnly) bool bIsBurned = false; //needed for CLient Replication to show particle system
 	UPROPERTY(Replicated, BlueprintReadOnly) bool bIsBeingShocked = false;
+	UPROPERTY(BlueprintReadOnly, Category = "", meta = (AllowPrivateAccess = "true")) bool bIsDead = false;
 
-	bool bIsDead = false;
 	int32 MinionCount = 0;
 
 	UFUNCTION(BlueprintImplementableEvent) void StartDissolveTimeline(UMaterialInstanceDynamic* DynamicMaterialInstance);

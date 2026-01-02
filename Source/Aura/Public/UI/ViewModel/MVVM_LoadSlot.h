@@ -18,6 +18,7 @@ public:
 	UPROPERTY(BlueprintAssignable) FEnableSelectSlotButton EnableSelectSlotButton;
 	UPROPERTY() TEnumAsByte<ESaveSlotStatus> SlotStatus;
 	UPROPERTY() FName PlayerStartTag;
+	UPROPERTY() FString MapAssetName;
 
 	void InitializeSlot();
 	void SetLoadSlotName(FString inLoadSlotName);

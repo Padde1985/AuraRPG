@@ -18,6 +18,9 @@ ACheckpoint::ACheckpoint(const FObjectInitializer& ObjectInitializer) : Super(Ob
 	this->Sphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	this->Sphere->SetCollisionResponseToAllChannels(ECR_Ignore);
 	this->Sphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+
+	this->MoveToComponent = CreateDefaultSubobject<USceneComponent>("Move To Component");
+	this->MoveToComponent->SetupAttachment(GetRootComponent());
 }
 
 bool ACheckpoint::ShouldLoadTransform_Implementation()
@@ -28,6 +31,21 @@ bool ACheckpoint::ShouldLoadTransform_Implementation()
 void ACheckpoint::LoadActor_Implementation()
 {
 	if (this->bReached)	this->HandleGlowEffects();
+}
+
+void ACheckpoint::SetMoveToLocation_Implementation(FVector& OutDestination)
+{
+	OutDestination = this->MoveToComponent->GetComponentLocation();
+}
+
+void ACheckpoint::HighlightActor_Implementation()
+{
+	if(!this->bReached) this->CheckpointMesh->SetRenderCustomDepth(true);
+}
+
+void ACheckpoint::UnHighlightActor_Implementation()
+{
+	this->CheckpointMesh->SetRenderCustomDepth(false);
 }
 
 void ACheckpoint::HandleGlowEffects()
@@ -43,7 +61,15 @@ void ACheckpoint::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 	if (OtherActor->Implements<UPlayerInterface>())
 	{
 		this->bReached = true;
-		if (AAuraGameModeBase* GameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this)))	GameMode->SaveWorldState(GetWorld());
+		if (AAuraGameModeBase* GameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this)))
+		{
+			const UWorld* World = GetWorld();
+			FString MapName = World->GetMapName();
+			MapName.RemoveFromStart(World->StreamingLevelsPrefix);
+
+			GameMode->SaveWorldState(GetWorld(), MapName);
+		}
+
 		IPlayerInterface::Execute_SaveProgress(OtherActor, PlayerStartTag);
 		this->HandleGlowEffects();
 	}
@@ -51,5 +77,10 @@ void ACheckpoint::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AAct
 
 void ACheckpoint::BeginPlay()
 {
-	this->Sphere->OnComponentBeginOverlap.AddDynamic(this, &ACheckpoint::OnSphereOverlap);
+	Super::BeginPlay();
+
+	if(this->bBindOverlapCallback) this->Sphere->OnComponentBeginOverlap.AddDynamic(this, &ACheckpoint::OnSphereOverlap);
+
+	this->CheckpointMesh->SetCustomDepthStencilValue(this->CustomDepthStencilOverride);
+	this->CheckpointMesh->SetRenderCustomDepth(false); //will be activated while hovering
 }

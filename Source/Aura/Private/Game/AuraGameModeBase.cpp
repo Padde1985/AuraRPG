@@ -8,6 +8,7 @@
 #include "Interaction/SaveInterface.h"
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
 #include "AuraLogChannels.h"
+#include "GameFramework/Character.h"
 
 void AAuraGameModeBase::SaveSlotData(UMVVM_LoadSlot* LoadSlot, int32 SlotIndex)
 {
@@ -17,6 +18,7 @@ void AAuraGameModeBase::SaveSlotData(UMVVM_LoadSlot* LoadSlot, int32 SlotIndex)
 	ULoadMenuSaveGame* LoadMenuSaveGame = Cast<ULoadMenuSaveGame>(SaveGameObject);
 	LoadMenuSaveGame->PlayerName = LoadSlot->GetPlayerName();
 	LoadMenuSaveGame->MapName = LoadSlot->GetMapName();
+	LoadMenuSaveGame->MapAssetName = LoadSlot->MapAssetName;
 	LoadMenuSaveGame->SaveSlotStatus = ESaveSlotStatus::Taken;
 	LoadMenuSaveGame->PlayerStartTag = LoadSlot->PlayerStartTag;
 
@@ -94,7 +96,7 @@ void AAuraGameModeBase::SaveInGameProgressData(ULoadMenuSaveGame* SaveObject)
 	UGameplayStatics::SaveGameToSlot(SaveObject, InGameLoadSlotName, InGameLoadSlotIndex);
 }
 
-void AAuraGameModeBase::SaveWorldState(UWorld* World) const
+void AAuraGameModeBase::SaveWorldState(UWorld* World, const FString& DestinationMapAssetName) const
 {
 	FString WorldName = World->GetMapName();
 	WorldName.RemoveFromStart(World->StreamingLevelsPrefix);
@@ -104,6 +106,12 @@ void AAuraGameModeBase::SaveWorldState(UWorld* World) const
 
 	if (ULoadMenuSaveGame* SaveGame = this->GetSaveSlotData(GI->LoadSlotName, GI->LoadSlotIndex))
 	{
+		if (DestinationMapAssetName != FString())
+		{
+			SaveGame->MapAssetName = DestinationMapAssetName;
+			SaveGame->MapName = this->GetMapNameByMapAssetName(DestinationMapAssetName);
+		}
+
 		if (!SaveGame->HasMap(WorldName))
 		{
 			FSavedMap NewSavedMap;
@@ -178,6 +186,24 @@ void AAuraGameModeBase::LoadWorldState(UWorld* World) const
 			}
 		}
 	}
+}
+
+FString AAuraGameModeBase::GetMapNameByMapAssetName(const FString& MapAssetName) const
+{
+	for (TTuple<FString, TSoftObjectPtr<UWorld>> Map : this->Maps)
+	{
+		if (Map.Value.ToSoftObjectPath().GetAssetName() == MapAssetName) return Map.Key;
+	}
+
+	return FString();
+}
+
+void AAuraGameModeBase::PlayerDied(ACharacter* DeadCharacter)
+{
+	ULoadMenuSaveGame* SaveGame = this->RetrieveInGameSaveData();
+	if (!IsValid(SaveGame)) return;
+
+	UGameplayStatics::OpenLevel(DeadCharacter, FName(SaveGame->MapAssetName));
 }
 
 void AAuraGameModeBase::BeginPlay()
