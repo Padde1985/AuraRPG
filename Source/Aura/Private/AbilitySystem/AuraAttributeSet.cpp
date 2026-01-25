@@ -105,6 +105,7 @@ void UAuraAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	if (Data.EvaluatedData.Attribute == GetIncomingXPAttribute()) this->HandleIncomingXP(Props);
 }
 
+// handle incoming damage (called by TakeDamage on actor)
 void UAuraAttributeSet::HandleIncomingDamage(FEffectProperties& Props)
 {
 	const float LocalIncomingDamage = GetIncomingDamage();
@@ -206,6 +207,7 @@ void UAuraAttributeSet::Debuff(const FEffectProperties& Props)
 	}
 }
 
+// handle incoming XP (broadcasted by server)
 void UAuraAttributeSet::HandleIncomingXP(FEffectProperties& Props)
 {
 	const float LocalIncomingXP = GetIncomingXP();
@@ -243,6 +245,7 @@ void UAuraAttributeSet::HandleIncomingXP(FEffectProperties& Props)
 	}
 }
 
+// calculate dependent attributes for Health and Mana
 void UAuraAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
 {
 	Super::PostAttributeChange(Attribute, OldValue, NewValue);
@@ -260,6 +263,7 @@ void UAuraAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute,
 	}
 }
 
+// show damage widget
 void UAuraAttributeSet::ShowFloatingText(const FEffectProperties& Props, float Damage, bool bIsBlocked, bool bIsCritical) const
 {
 	if (Props.SourceCharacter != Props.TargetCharacter)
@@ -279,6 +283,7 @@ void UAuraAttributeSet::ShowFloatingText(const FEffectProperties& Props, float D
 	}
 }
 
+// give XP to character
 void UAuraAttributeSet::SendXPEvent(const FEffectProperties& Props)
 {
 	if (Props.TargetCharacter->Implements<UCombatInterface>())

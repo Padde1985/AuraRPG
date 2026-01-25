@@ -10,6 +10,7 @@ UAuraAssetManager& UAuraAssetManager::Get()
 	return *AuraAssetManager;
 }
 
+// this ensures that all Gameplay tags get loaded in Project settings in the editor
 void UAuraAssetManager::StartInitialLoading()
 {
 	Super::StartInitialLoading();

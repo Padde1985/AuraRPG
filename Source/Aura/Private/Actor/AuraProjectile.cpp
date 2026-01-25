@@ -31,6 +31,7 @@ AAuraProjectile::AAuraProjectile()
 	this->ProjectileMovement->ProjectileGravityScale = 0.f; // disable gravity
 }
 
+// handle destruction of the actor
 void AAuraProjectile::Destroyed()
 {
 	// in case of client -> handle sound and impact effect before actually destroying the object and avoid calling the overlap event
@@ -45,7 +46,8 @@ void AAuraProjectile::Destroyed()
 	Super::Destroyed();
 }
 
-bool AAuraProjectile::IsValidOverlap(AActor* OtherActor)
+// check if actor is overlapping with something
+bool AAuraProjectile::IsValidOverlap(AActor* OtherActor) const
 {
 	if (!IsValid(this->DamageEffectParams.SourceAbilitySystemComponent)) return false;
 
@@ -56,6 +58,7 @@ bool AAuraProjectile::IsValidOverlap(AActor* OtherActor)
 	return true;
 }
 
+// actor is hitting something
 void AAuraProjectile::OnHit()
 {
 	UGameplayStatics::PlaySoundAtLocation(this, this->ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
@@ -80,6 +83,7 @@ void AAuraProjectile::BeginPlay()
 	this->FlySoundComponent = UGameplayStatics::SpawnSoundAttached(this->FlySound, GetRootComponent());
 }
 
+// callback for overlapping with something
 void AAuraProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (!this->IsValidOverlap(OtherActor)) return;

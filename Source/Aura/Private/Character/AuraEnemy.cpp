@@ -11,6 +11,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/BehaviorTree.h"
 
+// enemy constructor
 AAuraEnemy::AAuraEnemy()
 {
 	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
@@ -89,6 +90,7 @@ void AAuraEnemy::BeginPlay()
 	}
 }
 
+// prevent movement when being hit or allow it when hit is over
 void AAuraEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
 {
 	this->bHitReacting = NewCount > 0;
@@ -96,6 +98,7 @@ void AAuraEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCou
 	if(this->AIController && this->AIController->GetBlackboardComponent()) this->AIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), this->bHitReacting);
 }
 
+// enemy death
 void AAuraEnemy::Die(const FVector& DeathImpulse)
 {
 	SetLifeSpan(this->LifeSpan);
@@ -106,6 +109,7 @@ void AAuraEnemy::Die(const FVector& DeathImpulse)
 	Super::Die(DeathImpulse);
 }
 
+// possessed by AI controller triggers this function
 void AAuraEnemy::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
@@ -119,32 +123,38 @@ void AAuraEnemy::PossessedBy(AController* NewController)
 	this->AIController->GetBlackboardComponent()->SetValueAsBool(FName("RangedAttacker"), this->CharacterClass != ECharacterClass::Warrior); // everything besides a warrior is a ranged attacker
 }
 
+// choose combat target -> nearest player
 void AAuraEnemy::SetCombatTarget_Implementation(AActor* InCombatTarget)
 {
 	this->CombatTarget = InCombatTarget;
 }
 
+// getter for combat target
 AActor* AAuraEnemy::GetCombatTarget_Implementation() const
 {
 	return this->CombatTarget;
 }
 
+// knockback
 void AAuraEnemy::Knockback(const FVector& Force)
 {
 	Super::Knockback(Force);
 	this->AIController->StopMovement();
 }
 
+// enemies cannot move to a specific location
 void AAuraEnemy::SetMoveToLocation_Implementation(FVector& OutDestination)
 {
 	//explicitly do nothing
 }
 
+// setter for enemy level
 void AAuraEnemy::SetEnemyLevel(int32 Level)
 {
 	this->EnemyLevel = Level;
 }
 
+// set character class (warrior, ranger, or shaman)
 void AAuraEnemy::SetCharacterClass(ECharacterClass Class)
 {
 	CharacterClass = Class;
@@ -163,11 +173,13 @@ void AAuraEnemy::InitAbilityActorInfo()
 	AbilitySystemComponent->RegisterGameplayTagEvent(FAuraGameplayTags::Get().Debuff_Stun, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AAuraEnemy::StunTagChanged);
 }
 
+// initialize default attributes from the data set
 void AAuraEnemy::InitializeDefaultAttributes() const
 {
 	UAuraAbilitysystemLibrary::InitializeDefaultAttributes(this->CharacterClass, this->EnemyLevel, this, AbilitySystemComponent);
 }
 
+// handle being stunned
 void AAuraEnemy::StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
 {
 	Super::StunTagChanged(CallbackTag, NewCount);

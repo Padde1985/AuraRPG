@@ -5,11 +5,13 @@
 #include "Game/LoadMenuSaveGame.h"
 #include "Game/AuraGameInstance.h"
 
-UMVVM_LoadSlot* UMVVM_LoadMenu::GetLoadSLotViewModelByIndex(int32 Index) const
+// get load slot view model by user selected index (0-2)
+UMVVM_LoadSlot* UMVVM_LoadMenu::GetLoadSlotViewModelByIndex(int32 Index) const
 {
 	return this->LoadSlots.FindChecked(Index);
 }
 
+// creating a new slot where all data will be saved to
 void UMVVM_LoadMenu::NewSlotButtonPressed(int32 Slot, const FString& EnterName)
 {
 	AAuraGameModeBase* GameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this));
@@ -35,11 +37,13 @@ void UMVVM_LoadMenu::NewSlotButtonPressed(int32 Slot, const FString& EnterName)
 	GameInstance->PlayerStartTag = GameMode->DefaultPlayerStartTag;
 }
 
+// create a new game with the selected slot
 void UMVVM_LoadMenu::NewGameButtonPressed(int32 Slot)
 {
 	this->LoadSlots[Slot]->SetWidgetSwitcherIndex.Broadcast(1);
 }
 
+// select a slot to enable starting the game, delete the slot or just quit (going back to Load Menu)
 void UMVVM_LoadMenu::SelectSlotButtonPressed(int32 Slot)
 {
 	this->SlotSelected.Broadcast();
@@ -58,6 +62,7 @@ void UMVVM_LoadMenu::SelectSlotButtonPressed(int32 Slot)
 	this->SelectedSlot = this->LoadSlots[Slot];
 }
 
+// delete a given slot and all data associated within (slots are stored as a file in the game folder under /saved/savegames
 void UMVVM_LoadMenu::DeleteButtonPressed()
 {
 	if (IsValid(this->SelectedSlot))
@@ -70,6 +75,7 @@ void UMVVM_LoadMenu::DeleteButtonPressed()
 	}
 }
 
+// start the game of selected slot and load saved data if available
 void UMVVM_LoadMenu::PlayButtonPressed()
 {
 	AAuraGameModeBase* AuraGameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this));
@@ -81,6 +87,7 @@ void UMVVM_LoadMenu::PlayButtonPressed()
 	if(IsValid(this->SelectedSlot)) AuraGameMode->TravelToMap(this->SelectedSlot);
 }
 
+// initialize the Load slots when landing on the game screen
 void UMVVM_LoadMenu::InitializeLoadSlots()
 {
 	this->LoadSlot_0 = NewObject<UMVVM_LoadSlot>(this, this->LoadSlotViewModelClass);
@@ -99,6 +106,7 @@ void UMVVM_LoadMenu::InitializeLoadSlots()
 	this->LoadSlots.Add(2, this->LoadSlot_2);
 }
 
+// load central data from the savegame and show in the widget
 void UMVVM_LoadMenu::LoadData()
 {
 	AAuraGameModeBase* AuraGameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this));

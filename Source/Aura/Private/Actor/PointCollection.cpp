@@ -12,6 +12,7 @@ APointCollection::APointCollection()
 	this->ImmutablePts.Add(this->Pt_0);
 	SetRootComponent(this->Pt_0);
 
+	// call own macro to create the spawn points for the arcane crystal ability
 	CREATE_AND_SETUP_PT(this->Pt_1);
 	CREATE_AND_SETUP_PT(this->Pt_2);
 	CREATE_AND_SETUP_PT(this->Pt_3);
@@ -24,6 +25,7 @@ APointCollection::APointCollection()
 	CREATE_AND_SETUP_PT(this->Pt_10);
 }
 
+// get points on the ground where the crsytals will spawn
 TArray<USceneComponent*> APointCollection::GetGroundPoints(const FVector& GroundLocation, const int32 NumPoints, float YawOverride)
 {
 	checkf(this->ImmutablePts.Num() >= NumPoints, TEXT("Attempted to access ImmutablePts out of bounds"));
@@ -65,5 +67,4 @@ TArray<USceneComponent*> APointCollection::GetGroundPoints(const FVector& Ground
 void APointCollection::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }

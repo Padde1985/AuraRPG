@@ -1,5 +1,6 @@
 #include "AbilitySystem/Data/AttributeInfo.h"
 
+// get attribute information for tag
 FAuraAttributeInfo UAttributeInfo::FindAttributeInfoForTag(const FGameplayTag& AttributeTag, bool bLogNotFound) const
 {
 	const FAuraAttributeInfo* Info = this->AttributeInformation.Find(AttributeTag);

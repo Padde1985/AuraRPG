@@ -11,6 +11,7 @@ class USaveInterface : public UInterface
 	GENERATED_BODY()
 };
 
+// interface for everything that needs to be saved
 class AURA_API ISaveInterface
 {
 	GENERATED_BODY()

@@ -2,6 +2,7 @@
 #include "AbilitySystem/AuraAbilitysystemLibrary.h"
 #include "Actor/AuraFireBall.h"
 
+// get description for current level
 FString UAuraFireBlast::GetDescription(int32 Level)
 {
 	// get scaled damage from curve table for a given level
@@ -19,11 +20,13 @@ FString UAuraFireBlast::GetDescription(int32 Level)
 							this->NumFireBalls, ScaledDamage, Level, ManaCost, Cooldown);
 }
 
+// get description for next level (description does not change over levels)
 FString UAuraFireBlast::GetNextLevelDescription(int32 Level)
 {
 	return this->GetDescription(Level);
 }
 
+// spawn multiple fireballs depending on ability level
 TArray<AAuraFireBall*> UAuraFireBlast::SpawnFireBalls()
 {
 	if (!GetAvatarActorFromActorInfo()->HasAuthority()) return TArray<AAuraFireBall*>();

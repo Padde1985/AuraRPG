@@ -5,6 +5,7 @@
 #include "Player/AuraPlayerState.h"
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 
+// call function on the ability system component to upgrade the given attribute
 void UAttributeMenuWidgetController::UpgradeAttribute(const FGameplayTag& AttributeTag)
 {
 	GetAuraASC()->UpgradeAttribute(AttributeTag);

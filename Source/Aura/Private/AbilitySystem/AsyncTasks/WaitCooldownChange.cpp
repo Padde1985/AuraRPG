@@ -1,6 +1,7 @@
 #include "AbilitySystem/AsyncTasks/WaitCooldownChange.h"
 #include "AbilitySystemComponent.h"
 
+// bind to delegates for cooldown changes and store attributes
 UWaitCooldownChange* UWaitCooldownChange::WaitForCooldownChange(UAbilitySystemComponent* ASC, const FGameplayTag& InCooldownTag)
 {
 	UWaitCooldownChange* WaitCooldownChange = NewObject<UWaitCooldownChange>();
@@ -21,6 +22,7 @@ UWaitCooldownChange* UWaitCooldownChange::WaitForCooldownChange(UAbilitySystemCo
 	return WaitCooldownChange;
 }
 
+// kill task when cooldown is complete
 void UWaitCooldownChange::EndTask()
 {
 	if (!IsValid(this->ASC)) return;
@@ -31,6 +33,7 @@ void UWaitCooldownChange::EndTask()
 	MarkAsGarbage();
 }
 
+// once cooldown tag changes, inform via broadcast 
 void UWaitCooldownChange::CooldownTagChanged(const FGameplayTag InCooldownTag, int32 NewCount)
 {
 	if (NewCount == 0)
@@ -39,6 +42,7 @@ void UWaitCooldownChange::CooldownTagChanged(const FGameplayTag InCooldownTag, i
 	}
 }
 
+// apply cooldown and inform via broadcast
 void UWaitCooldownChange::OnActiveEffectAdded(UAbilitySystemComponent* TargetASC, const FGameplayEffectSpec& SpecApplied, FActiveGameplayEffectHandle ActiveEffectHandle)
 {
 	FGameplayTagContainer AssetTags;

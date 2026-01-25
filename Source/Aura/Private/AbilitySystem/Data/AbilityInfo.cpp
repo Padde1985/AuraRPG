@@ -1,5 +1,6 @@
 #include "AbilitySystem/Data/AbilityInfo.h"
 
+// get ability info from data set
 FAuraAbilityInfo UAbilityInfo::FindAbilityInfoForTag(const FGameplayTag& AbilityTag, bool bLogNotFound) const
 {
 	for (const FAuraAbilityInfo& Info : this->AbilityInformation)

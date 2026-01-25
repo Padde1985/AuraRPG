@@ -11,7 +11,7 @@ class UHighlightInterface : public UInterface
 	GENERATED_BODY()
 };
 
-
+// interface for all highlighting functionality, is implemented in character class and all highlightable actors (save spots, etc.)
 class AURA_API IHighlightInterface
 {
 	GENERATED_BODY()

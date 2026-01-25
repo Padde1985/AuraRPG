@@ -1,5 +1,6 @@
 #include "AbilitySystem/Abilities/AuraArcaneShards.h"
 
+// get description text for current level
 FString UAuraArcaneShards::GetDescription(int32 Level)
 {
 	// get scaled damage from curve table for a given level
@@ -29,6 +30,7 @@ FString UAuraArcaneShards::GetDescription(int32 Level)
 	}
 }
 
+// get description for next level
 FString UAuraArcaneShards::GetNextLevelDescription(int32 Level)
 {
 	// get scaled damage from curve table for a given level

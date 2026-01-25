@@ -24,6 +24,7 @@ AAuraPlayerController::AAuraPlayerController()
 	this->Spline = CreateDefaultSubobject<USplineComponent>("Spline"); // path finding
 }
 
+// show magic circle on the floor if spell requests that
 void AAuraPlayerController::ShowMagicCircle(UMaterialInterface* DecalMaterial)
 {
 	if (!IsValid(this->MagicCircle))
@@ -33,11 +34,13 @@ void AAuraPlayerController::ShowMagicCircle(UMaterialInterface* DecalMaterial)
 	}
 }
 
+// hide circle again (spell casted or canceled)
 void AAuraPlayerController::HideMagicCircle()
 {
 	if(IsValid(this->MagicCircle)) this->MagicCircle->Destroy();
 }
 
+// Show the damage text widget to inform player about damage inflicted
 void AAuraPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter, bool bIsBlocked, bool bIsCritical)
 {
 	//IsValid also checks for pending kill and other stuff
@@ -111,11 +114,13 @@ void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
 	}
 }
 
+// set shift modifier (fire ability without moving)
 void AAuraPlayerController::ShiftPressed()
 {
 	this->bShiftDown = true;
 }
 
+// clear shift modifier
 void AAuraPlayerController::ShiftReleased()
 {
 	this->bShiftDown = false;
@@ -279,6 +284,7 @@ UAuraAbilitySystemComponent* AAuraPlayerController::GetASC()
 	return this->AuraAbilitySystemComponent;
 }
 
+// automatic wayfinding to a point on the level
 void AAuraPlayerController::AutoRun()
 {
 	if (!this->bAutoRunning) return;
@@ -294,7 +300,8 @@ void AAuraPlayerController::AutoRun()
 	}
 }
 
-void AAuraPlayerController::UpdateMagicCircleLocation()
+// updating magic circle location when moving the mouse before actually casting the spell
+void AAuraPlayerController::UpdateMagicCircleLocation() const
 {
 	if (IsValid(this->MagicCircle))
 	{

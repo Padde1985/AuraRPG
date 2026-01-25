@@ -12,6 +12,7 @@ AAuraEffectActor::AAuraEffectActor()
 	SetRootComponent(CreateDefaultSubobject<USceneComponent>("SceneRoot"));
 }
 
+// ticking of effect actor (potions, etc.)
 void AAuraEffectActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -78,6 +79,7 @@ void AAuraEffectActor::OnEndOverlap(AActor* TargetActor)
 	}
 }
 
+// bobbing effect
 void AAuraEffectActor::StartSinusoidalMovement()
 {
 	this->bSinusoidalMovement = true;
@@ -85,12 +87,14 @@ void AAuraEffectActor::StartSinusoidalMovement()
 	this->CalculatedLocation = this->InitialLocation;
 }
 
+// rotating potions or crystals
 void AAuraEffectActor::StartRotation()
 {
 	this->bRotates = true;
 	this->CalculatedRotation = GetActorRotation();
 }
 
+// actually move the item (rotate, bobbing up and down)
 void AAuraEffectActor::ItemMovememnt(float DeltaTime)
 {
 	if (this->bRotates)
@@ -105,4 +109,3 @@ void AAuraEffectActor::ItemMovememnt(float DeltaTime)
 		this->CalculatedLocation = this->InitialLocation + FVector(0.f, 0.f, Sine);
 	}
 }
-

@@ -3,6 +3,7 @@
 #include "UI/Widget/LoadMenuWidget.h"
 #include "UI/ViewModel/MVVM_LoadMenu.h"
 
+// generates the Load Screen with Play and Quit buttons
 void ALoadScreenHUD::BeginPlay()
 {
 	Super::BeginPlay();

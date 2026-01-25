@@ -5,6 +5,7 @@ UScriptStruct* FAuraGameplayEffectContext::GetScriptStruct() const
 	return StaticStruct();
 }
 
+// serializer, only needed for Multiplayer functionality
 bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess)
 {
 	uint32 RepBits = 0;

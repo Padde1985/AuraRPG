@@ -4,6 +4,7 @@
 #include "Interaction/CombatInterface.h"
 #include "AbilitySystem/AuraAbilitysystemLibrary.h"
 
+// get description of current level
 FString UAuraBeamSpell::GetDescription(int32 Level)
 {
 	// get scaled damage from curve table for a given level
@@ -33,6 +34,7 @@ FString UAuraBeamSpell::GetDescription(int32 Level)
 	}
 }
 
+// get description for next level
 FString UAuraBeamSpell::GetNextLevelDescription(int32 Level)
 {
 	const int32 ScaledDamage = Damage.GetValueAtLevel(Level);
@@ -48,6 +50,7 @@ FString UAuraBeamSpell::GetNextLevelDescription(int32 Level)
 						   FMath::Min(Level - 1, this->MaxNumShockTargets), ScaledDamage, Level, ManaCost, Cooldown);
 }
 
+// store mouse location and what actor should be hit
 void UAuraBeamSpell::StoreMouseDataInfo(const FHitResult& HitResult)
 {
 	if (HitResult.bBlockingHit)
@@ -61,6 +64,7 @@ void UAuraBeamSpell::StoreMouseDataInfo(const FHitResult& HitResult)
 	}
 }
 
+// store player controller and the owning character (casting character)
 void UAuraBeamSpell::StoreOwnerVariables()
 {
 	if (CurrentActorInfo)
@@ -70,6 +74,7 @@ void UAuraBeamSpell::StoreOwnerVariables()
 	}
 }
 
+// get the first hit target in line of the spell
 void UAuraBeamSpell::TraceFirstTarget(const FVector& BeamTargetLocation)
 {
 	check(this->OwningCharacter);
@@ -100,6 +105,7 @@ void UAuraBeamSpell::TraceFirstTarget(const FVector& BeamTargetLocation)
 	}
 }
 
+// find additional targets based on spell level and targets in vicinity
 void UAuraBeamSpell::StoreAdditionalTargets(TArray<AActor*>& OutAdditionalTargets)
 {
 	TArray<AActor*> TargetsToIgnore;

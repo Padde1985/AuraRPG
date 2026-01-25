@@ -34,7 +34,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual void Destroyed() override;
-	bool IsValidOverlap(AActor* OtherActor);
+	bool IsValidOverlap(AActor* OtherActor) const;
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Components", meta = (AllowPrivateAccess = "true")) TObjectPtr<USphereComponent> Sphere;

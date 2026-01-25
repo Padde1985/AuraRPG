@@ -16,6 +16,7 @@ AAuraEnemySpawnVolume::AAuraEnemySpawnVolume()
 	this->Box->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECR_Overlap);
 }
 
+// if minion reached player, destroy it
 void AAuraEnemySpawnVolume::LoadActor_Implementation()
 {
 	if (this->bReached) Destroy();
@@ -29,6 +30,7 @@ void AAuraEnemySpawnVolume::BeginPlay()
 	this->Box->OnComponentBeginOverlap.AddDynamic(this, &AAuraEnemySpawnVolume::OnBoxOverlap);
 }
 
+// minion reached player character
 void AAuraEnemySpawnVolume::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (!OtherActor->Implements<UPlayerInterface>()) return;

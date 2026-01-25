@@ -26,17 +26,17 @@ public:
 	UPROPERTY(EditDefaultsOnly) TMap<FString, TSoftObjectPtr<UWorld>> Maps;
 	UPROPERTY(EditDefaultsOnly) FName DefaultPlayerStartTag;
 
-	void SaveSlotData(UMVVM_LoadSlot* LoadSlot, int32 SlotIndex);
+	void SaveSlotData(UMVVM_LoadSlot* LoadSlot, int32 SlotIndex) const;
 	ULoadMenuSaveGame* GetSaveSlotData(const FString& SlotName, int32 SlotIndex) const;
 	static void DeleteSlot(const FString& SlotName, int32 SlotIndex);
-	void TravelToMap(UMVVM_LoadSlot* Slot);
+	void TravelToMap(const UMVVM_LoadSlot* Slot);
 	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 	ULoadMenuSaveGame* RetrieveInGameSaveData();
-	void SaveInGameProgressData(ULoadMenuSaveGame* SaveObject);
+	void SaveInGameProgressData(ULoadMenuSaveGame* SaveObject) const;
 	void SaveWorldState(UWorld* World, const FString& DestinationMapAssetName = FString()) const;
 	void LoadWorldState(UWorld* World) const;
 	FString GetMapNameByMapAssetName(const FString& MapAssetName) const;
-	void PlayerDied(ACharacter* DeadCharacter);
+	void PlayerDied(const ACharacter* DeadCharacter);
 
 protected:
 	virtual void BeginPlay() override;

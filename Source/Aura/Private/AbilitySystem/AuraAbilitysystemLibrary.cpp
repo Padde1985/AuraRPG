@@ -34,6 +34,7 @@ UAttributeMenuWidgetController* UAuraAbilitysystemLibrary::GetAttributeMenuWidge
 	return nullptr;
 }
 
+// return controller for Spell menu widget
 USpellMenuWidgetController* UAuraAbilitysystemLibrary::GetSpellMenuWidgetController(const UObject* WorldContextObject)
 {
 	FWidgetControllerParams WCParams;
@@ -43,6 +44,7 @@ USpellMenuWidgetController* UAuraAbilitysystemLibrary::GetSpellMenuWidgetControl
 	return nullptr;
 }
 
+// create widget controller params structure (used in blueprints)
 bool UAuraAbilitysystemLibrary::MakeWidgetControllerParams(const UObject* WorldContextObject, FWidgetControllerParams& OutWCParams, AAuraHUD*& OutAuraHUD)
 {
 	if (APlayerController* PC = UGameplayStatics::GetPlayerController(WorldContextObject, 0))
@@ -65,6 +67,7 @@ bool UAuraAbilitysystemLibrary::MakeWidgetControllerParams(const UObject* WorldC
 	return false;
 }
 
+// init default attributes for a character (player or enemy)
 void UAuraAbilitysystemLibrary::InitializeDefaultAttributes(ECharacterClass CharacterClass, float Level, const UObject* WorldContextObject, UAbilitySystemComponent* ASC)
 {
 	AActor* AvatarActor = ASC->GetAvatarActor();
@@ -90,6 +93,7 @@ void UAuraAbilitysystemLibrary::InitializeDefaultAttributes(ECharacterClass Char
 	ASC->ApplyGameplayEffectSpecToSelf(*VitalAttributesSpecHandle.Data.Get());
 }
 
+// assign startup abilities (passive event listener, mouse under target, etc)
 void UAuraAbilitysystemLibrary::GiveStartupAbilities(const UObject* WorldContextObject, UAbilitySystemComponent* ASC, ECharacterClass CharacterClass)
 {
 	UCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
@@ -112,6 +116,7 @@ void UAuraAbilitysystemLibrary::GiveStartupAbilities(const UObject* WorldContext
 	}
 }
 
+// get character info from data set
 UCharacterClassInfo* UAuraAbilitysystemLibrary::GetCharacterClassInfo(const UObject* WorldContextObject)
 {
 	const AAuraGameModeBase* AuraGameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
@@ -120,6 +125,7 @@ UCharacterClassInfo* UAuraAbilitysystemLibrary::GetCharacterClassInfo(const UObj
 	return AuraGameMode->CharacterClassInfo;
 }
 
+// check if hit was blocked
 bool UAuraAbilitysystemLibrary::IsBlockedHit(const FGameplayEffectContextHandle& ContextHandle)
 {
 	if (const FAuraGameplayEffectContext* AuraEffectContext = static_cast<const FAuraGameplayEffectContext*>(ContextHandle.Get()))
@@ -130,6 +136,7 @@ bool UAuraAbilitysystemLibrary::IsBlockedHit(const FGameplayEffectContextHandle&
 	return false;
 }
 
+// set information that hit was blocked
 void UAuraAbilitysystemLibrary::SetIsBlockedHit(FGameplayEffectContextHandle& ContextHandle, bool bInIsBlockedHit)
 {
 	if (FAuraGameplayEffectContext* AuraEffectContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get()))
@@ -138,6 +145,7 @@ void UAuraAbilitysystemLibrary::SetIsBlockedHit(FGameplayEffectContextHandle& Co
 	}
 }
 
+// chekc if hit was critical
 bool UAuraAbilitysystemLibrary::IsCriticalHit(const FGameplayEffectContextHandle& ContextHandle)
 {
 	if (const FAuraGameplayEffectContext* AuraEffectContext = static_cast<const FAuraGameplayEffectContext*>(ContextHandle.Get()))
@@ -148,6 +156,7 @@ bool UAuraAbilitysystemLibrary::IsCriticalHit(const FGameplayEffectContextHandle
 	return false;
 }
 
+// get all player characters within a defined radius
 void UAuraAbilitysystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, float Radius, const FVector& SphereOrigin)
 {
 	FCollisionQueryParams SphereParams;
@@ -165,6 +174,7 @@ void UAuraAbilitysystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldC
 	}
 }
 
+// check in multiplayer if the actor is friendly or not (prevent friendly fire)
 bool UAuraAbilitysystemLibrary::IsNotFriend(AActor* FirstActor, AActor* SecondActor)
 {
 	const bool bFirstIsPlayer = FirstActor->ActorHasTag(FName("Player"));
@@ -173,6 +183,7 @@ bool UAuraAbilitysystemLibrary::IsNotFriend(AActor* FirstActor, AActor* SecondAc
 	return bFirstIsPlayer && !bSecondIsPlayer || !bFirstIsPlayer && bSecondIsPlayer;
 }
 
+// get XP reward from data set when killing an enemy
 int32 UAuraAbilitysystemLibrary::GetXPRewardForClassAndLevel(ECharacterClass CharacterClass, int32 Level, const UObject* WorldContextObject)
 {
 	UCharacterClassInfo* ClassInfo = GetCharacterClassInfo(WorldContextObject);
@@ -184,6 +195,7 @@ int32 UAuraAbilitysystemLibrary::GetXPRewardForClassAndLevel(ECharacterClass Cha
 	return static_cast<int32>(XPReward);
 }
 
+// get ability info data set
 UAbilityInfo* UAuraAbilitysystemLibrary::GetAbilityInfo(const UObject* WorldContextObject)
 {
 	const AAuraGameModeBase* AuraGameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
@@ -192,6 +204,7 @@ UAbilityInfo* UAuraAbilitysystemLibrary::GetAbilityInfo(const UObject* WorldCont
 	return AuraGameMode->AbilityInfo;
 }
 
+// apply damage effect parameters
 FGameplayEffectContextHandle UAuraAbilitysystemLibrary::ApplyDamageEffect(const FDamageEffectParams& Params)
 {
 	const FAuraGameplayTags GameplayTags = FAuraGameplayTags::Get();
@@ -219,6 +232,7 @@ FGameplayEffectContextHandle UAuraAbilitysystemLibrary::ApplyDamageEffect(const 
 	return Handle;
 }
 
+// check for a successful debuff
 bool UAuraAbilitysystemLibrary::IsSuccessfulDebuff(const FGameplayEffectContextHandle& ContextHandle)
 {
 	if (const FAuraGameplayEffectContext* AuraEffectContext = static_cast<const FAuraGameplayEffectContext*>(ContextHandle.Get()))
@@ -229,6 +243,7 @@ bool UAuraAbilitysystemLibrary::IsSuccessfulDebuff(const FGameplayEffectContextH
 	return false;
 }
 
+// get debuff damage from ability
 float UAuraAbilitysystemLibrary::GetDebuffDamage(const FGameplayEffectContextHandle& ContextHandle)
 {
 	if (const FAuraGameplayEffectContext* AuraEffectContext = static_cast<const FAuraGameplayEffectContext*>(ContextHandle.Get()))
@@ -239,6 +254,7 @@ float UAuraAbilitysystemLibrary::GetDebuffDamage(const FGameplayEffectContextHan
 	return 0.f;
 }
 
+// get debuff duration
 float UAuraAbilitysystemLibrary::GetDebuffDuration(const FGameplayEffectContextHandle& ContextHandle)
 {
 	if (const FAuraGameplayEffectContext* AuraEffectContext = static_cast<const FAuraGameplayEffectContext*>(ContextHandle.Get()))
@@ -249,6 +265,7 @@ float UAuraAbilitysystemLibrary::GetDebuffDuration(const FGameplayEffectContextH
 	return 0.f;
 }
 
+// check how often the effect has to be applied (stun duration or periodic damage)
 float UAuraAbilitysystemLibrary::GetDebuffFrequency(const FGameplayEffectContextHandle& ContextHandle)
 {
 	if (const FAuraGameplayEffectContext* AuraEffectContext = static_cast<const FAuraGameplayEffectContext*>(ContextHandle.Get()))
@@ -259,6 +276,7 @@ float UAuraAbilitysystemLibrary::GetDebuffFrequency(const FGameplayEffectContext
 	return 0.f;
 }
 
+// check damage type for ability
 FGameplayTag UAuraAbilitysystemLibrary::GetDamageType(const FGameplayEffectContextHandle& ContextHandle)
 {
 	if (const FAuraGameplayEffectContext* AuraEffectContext = static_cast<const FAuraGameplayEffectContext*>(ContextHandle.Get()))
@@ -269,6 +287,7 @@ FGameplayTag UAuraAbilitysystemLibrary::GetDamageType(const FGameplayEffectConte
 	return FGameplayTag();
 }
 
+// define critical hit
 void UAuraAbilitysystemLibrary::SetIsCriticalHit(FGameplayEffectContextHandle& ContextHandle, bool bInIsCriticalHit)
 {
 	if (FAuraGameplayEffectContext* AuraEffectContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get()))
@@ -277,6 +296,7 @@ void UAuraAbilitysystemLibrary::SetIsCriticalHit(FGameplayEffectContextHandle& C
 	}
 }
 
+// define successful debuff
 void UAuraAbilitysystemLibrary::SetIsDebuffSuccessful(UPARAM(ref)FGameplayEffectContextHandle& ContextHandle, bool bInIsSuccessfulDebuff)
 {
 	if (FAuraGameplayEffectContext* AuraEffectContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get()))
@@ -285,6 +305,7 @@ void UAuraAbilitysystemLibrary::SetIsDebuffSuccessful(UPARAM(ref)FGameplayEffect
 	}
 }
 
+// set damage for debuff (burn)
 void UAuraAbilitysystemLibrary::SetDebuffDamage(UPARAM(ref)FGameplayEffectContextHandle& ContextHandle, float Damage)
 {
 	if (FAuraGameplayEffectContext* AuraEffectContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get()))
@@ -293,6 +314,7 @@ void UAuraAbilitysystemLibrary::SetDebuffDamage(UPARAM(ref)FGameplayEffectContex
 	}
 }
 
+// set debuff duration
 void UAuraAbilitysystemLibrary::SetDebuffDuration(UPARAM(ref)FGameplayEffectContextHandle& ContextHandle, float Duration)
 {
 	if (FAuraGameplayEffectContext* AuraEffectContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get()))
@@ -301,6 +323,7 @@ void UAuraAbilitysystemLibrary::SetDebuffDuration(UPARAM(ref)FGameplayEffectCont
 	}
 }
 
+// set debuff frequency
 void UAuraAbilitysystemLibrary::SetDebuffFrequency(UPARAM(ref)FGameplayEffectContextHandle& ContextHandle, float Frequency)
 {
 	if (FAuraGameplayEffectContext* AuraEffectContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get()))
@@ -309,6 +332,7 @@ void UAuraAbilitysystemLibrary::SetDebuffFrequency(UPARAM(ref)FGameplayEffectCon
 	}
 }
 
+// set damage on effect context
 void UAuraAbilitysystemLibrary::SetDamageType(UPARAM(ref)FGameplayEffectContextHandle& ContextHandle, const FGameplayTag& InDamageType)
 {
 	if (FAuraGameplayEffectContext* AuraEffectContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get()))
@@ -317,6 +341,7 @@ void UAuraAbilitysystemLibrary::SetDamageType(UPARAM(ref)FGameplayEffectContextH
 	}
 }
 
+// get death impulse when killing an enemy or the player
 FVector UAuraAbilitysystemLibrary::GetDeathImpulse(const FGameplayEffectContextHandle& ContextHandle)
 {
 	if (const FAuraGameplayEffectContext* AuraEffectContext = static_cast<const FAuraGameplayEffectContext*>(ContextHandle.Get()))
@@ -327,6 +352,7 @@ FVector UAuraAbilitysystemLibrary::GetDeathImpulse(const FGameplayEffectContextH
 	return FVector::ZeroVector;
 }
 
+// set the death impulse
 void UAuraAbilitysystemLibrary::SetDeathImpulse(UPARAM(ref)FGameplayEffectContextHandle& ContextHandle, const FVector& Impulse)
 {
 	if (FAuraGameplayEffectContext* AuraEffectContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get()))
@@ -335,6 +361,7 @@ void UAuraAbilitysystemLibrary::SetDeathImpulse(UPARAM(ref)FGameplayEffectContex
 	}
 }
 
+// get the knockback force
 FVector UAuraAbilitysystemLibrary::GetKnockbackForce(const FGameplayEffectContextHandle& ContextHandle)
 {
 	if (const FAuraGameplayEffectContext* AuraEffectContext = static_cast<const FAuraGameplayEffectContext*>(ContextHandle.Get()))
@@ -345,6 +372,7 @@ FVector UAuraAbilitysystemLibrary::GetKnockbackForce(const FGameplayEffectContex
 	return FVector::ZeroVector;
 }
 
+// set the knockback force
 void UAuraAbilitysystemLibrary::SetKnockbackForce(UPARAM(ref)FGameplayEffectContextHandle& ContextHandle, const FVector& Force)
 {
 	if (FAuraGameplayEffectContext* AuraEffectContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get()))
@@ -353,6 +381,7 @@ void UAuraAbilitysystemLibrary::SetKnockbackForce(UPARAM(ref)FGameplayEffectCont
 	}
 }
 
+// create evenly spaced rotators (align rotation with flight path)
 TArray<FRotator> UAuraAbilitysystemLibrary::EvenlySpacedRotators(const FVector& Forward, const FVector& Axis, float Spread, int32 Rotators)
 {
 	TArray<FRotator> RotatorArray;
@@ -376,6 +405,7 @@ TArray<FRotator> UAuraAbilitysystemLibrary::EvenlySpacedRotators(const FVector& 
 	return RotatorArray;
 }
 
+// create evenely spaced vectors (spread)
 TArray<FVector> UAuraAbilitysystemLibrary::EvenlyRotatedVectors(const FVector& Forward, const FVector& Axis, float Spread, int32 Vectors)
 {
 	TArray<FVector> VectorArray;
@@ -399,6 +429,7 @@ TArray<FVector> UAuraAbilitysystemLibrary::EvenlyRotatedVectors(const FVector& F
 	return VectorArray;
 }
 
+// get closest targets from current actor
 void UAuraAbilitysystemLibrary::GetClosestTargets(int32 MaxTargets, const TArray<AActor*>& Actors, TArray<AActor*>& OutClosestTargets, const FVector& Origin)
 {
 	if (Actors.Num() <= MaxTargets)
@@ -424,6 +455,7 @@ void UAuraAbilitysystemLibrary::GetClosestTargets(int32 MaxTargets, const TArray
 	}
 }
 
+// check if damage is radial
 bool UAuraAbilitysystemLibrary::IsRadialDamage(const FGameplayEffectContextHandle& EffectContextHandle)
 {
 	if (const FAuraGameplayEffectContext* AuraEffectContext = static_cast<const FAuraGameplayEffectContext*>(EffectContextHandle.Get()))
@@ -434,6 +466,7 @@ bool UAuraAbilitysystemLibrary::IsRadialDamage(const FGameplayEffectContextHandl
 	return false;
 }
 
+// get the inner radius for the damage
 float UAuraAbilitysystemLibrary::GetRadialDamageInnerRadius(const FGameplayEffectContextHandle& EffectContextHandle)
 {
 	if (const FAuraGameplayEffectContext* AuraEffectContext = static_cast<const FAuraGameplayEffectContext*>(EffectContextHandle.Get()))
@@ -444,6 +477,7 @@ float UAuraAbilitysystemLibrary::GetRadialDamageInnerRadius(const FGameplayEffec
 	return 0.f;
 }
 
+// get outer radius for damage
 float UAuraAbilitysystemLibrary::GetRadialDamageOuterRadius(const FGameplayEffectContextHandle& EffectContextHandle)
 {
 	if (const FAuraGameplayEffectContext* AuraEffectContext = static_cast<const FAuraGameplayEffectContext*>(EffectContextHandle.Get()))
@@ -454,6 +488,7 @@ float UAuraAbilitysystemLibrary::GetRadialDamageOuterRadius(const FGameplayEffec
 	return 0.f;
 }
 
+// get the origin for the radial damage (cast area, hit enemy)
 FVector UAuraAbilitysystemLibrary::GetRadialDamageOrigin(const FGameplayEffectContextHandle& EffectContextHandle)
 {
 	if (const FAuraGameplayEffectContext* AuraEffectContext = static_cast<const FAuraGameplayEffectContext*>(EffectContextHandle.Get()))
@@ -464,6 +499,7 @@ FVector UAuraAbilitysystemLibrary::GetRadialDamageOrigin(const FGameplayEffectCo
 	return FVector::ZeroVector;
 }
 
+// define radial damage
 void UAuraAbilitysystemLibrary::SetIsRadialDamage(UPARAM(ref)FGameplayEffectContextHandle& ContextHandle, bool bInIsRadialDamage)
 {
 	if (FAuraGameplayEffectContext* AuraEffectContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get()))
@@ -472,6 +508,7 @@ void UAuraAbilitysystemLibrary::SetIsRadialDamage(UPARAM(ref)FGameplayEffectCont
 	}
 }
 
+// ste the inner radius for the damage
 void UAuraAbilitysystemLibrary::SetRadialDamageInnerRadius(UPARAM(ref)FGameplayEffectContextHandle& ContextHandle, float Radius)
 {
 	if (FAuraGameplayEffectContext* AuraEffectContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get()))
@@ -480,6 +517,7 @@ void UAuraAbilitysystemLibrary::SetRadialDamageInnerRadius(UPARAM(ref)FGameplayE
 	}
 }
 
+// set the outer radius for damage
 void UAuraAbilitysystemLibrary::SetRadialDamageOuterRadius(UPARAM(ref)FGameplayEffectContextHandle& ContextHandle, float Radius)
 {
 	if (FAuraGameplayEffectContext* AuraEffectContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get()))
@@ -488,6 +526,7 @@ void UAuraAbilitysystemLibrary::SetRadialDamageOuterRadius(UPARAM(ref)FGameplayE
 	}
 }
 
+// ste the origin for the radius
 void UAuraAbilitysystemLibrary::SetRadialDamageOrigin(UPARAM(ref)FGameplayEffectContextHandle& ContextHandle, const FVector& Origin)
 {
 	if (FAuraGameplayEffectContext* AuraEffectContext = static_cast<FAuraGameplayEffectContext*>(ContextHandle.Get()))
@@ -496,6 +535,7 @@ void UAuraAbilitysystemLibrary::SetRadialDamageOrigin(UPARAM(ref)FGameplayEffect
 	}
 }
 
+// create effect params for radial damage
 void UAuraAbilitysystemLibrary::SetIsRadialDamageEffectParam(UPARAM(ref)FDamageEffectParams& DamageEffectParams, bool bIsRadial, float InnerRadius, float OuterRadius, FVector Origin)
 {
 	DamageEffectParams.bIsRadialDamage = bIsRadial;
@@ -504,6 +544,7 @@ void UAuraAbilitysystemLibrary::SetIsRadialDamageEffectParam(UPARAM(ref)FDamageE
 	DamageEffectParams.RadialDamageOrigin = Origin;
 }
 
+// determine knockback direction based on hit impact
 void UAuraAbilitysystemLibrary::SetKnockbackDirection(UPARAM(ref)FDamageEffectParams& DamageEffectParams, FVector Direction, float Magnitude)
 {
 	Direction.Normalize();
@@ -517,6 +558,7 @@ void UAuraAbilitysystemLibrary::SetKnockbackDirection(UPARAM(ref)FDamageEffectPa
 	}
 }
 
+// set death impulse direction based on hit impact
 void UAuraAbilitysystemLibrary::SetDeathImpulseDirection(UPARAM(ref)FDamageEffectParams& DamageEffectParams, FVector Direction, float Magnitude)
 {
 	Direction.Normalize();
@@ -530,11 +572,13 @@ void UAuraAbilitysystemLibrary::SetDeathImpulseDirection(UPARAM(ref)FDamageEffec
 	}
 }
 
+// set ability component to effect spec
 void UAuraAbilitysystemLibrary::SetTargetEffectParamsASC(UPARAM(ref)FDamageEffectParams& DamageEffectParams, UAbilitySystemComponent* ASC)
 {
 	DamageEffectParams.TargetAbilitySystemComponent = ASC;
 }
 
+// get initial attribues from a savegame
 void UAuraAbilitysystemLibrary::InitializeDefaultAttributesFromSaveGame(const UObject* WorldContextObject, UAbilitySystemComponent* ASC, ULoadMenuSaveGame* SaveGame)
 {
 	UCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
@@ -565,6 +609,7 @@ void UAuraAbilitysystemLibrary::InitializeDefaultAttributesFromSaveGame(const UO
 	ASC->ApplyGameplayEffectSpecToSelf(*VitalAttributesSpecHandle.Data.Get());
 }
 
+// get loot tiers (chance of loot, and amount)
 ULootTiers* UAuraAbilitysystemLibrary::GetLootTiers(const UObject* WorldContextObject)
 {
 	const AAuraGameModeBase* AuraGameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));

@@ -20,7 +20,7 @@ public:
 	UPROPERTY() FName PlayerStartTag;
 	UPROPERTY() FString MapAssetName;
 
-	void InitializeSlot();
+	void InitializeSlot() const;
 	void SetLoadSlotName(FString inLoadSlotName);
 	FString GetLoadSlotName() const;
 	void SetPlayerName(FString InPlayerName);

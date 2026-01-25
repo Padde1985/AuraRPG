@@ -67,6 +67,7 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 	}
 }
 
+// callback function for the event of changed experience points
 void UOverlayWidgetController::OnXPChanged(int32 NewXP)
 {
 	const ULevelInfo* LevelInfo = GetAuraPS()->LevelInfo;
@@ -87,6 +88,7 @@ void UOverlayWidgetController::OnXPChanged(int32 NewXP)
 	}
 }
 
+// callback in case an ability gets equipped to the character
 void UOverlayWidgetController::OnAbilityEquipped(const FGameplayTag& AbilityTag, const FGameplayTag& Status, const FGameplayTag& Slot, const FGameplayTag& PreviousSlot) const
 {
 	const FAuraGameplayTags GameplayTags = FAuraGameplayTags::Get();

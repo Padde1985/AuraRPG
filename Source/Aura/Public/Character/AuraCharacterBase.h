@@ -26,7 +26,7 @@ public:
 	FOnDeath OnDeath;
 	FOnDamageSignature OnDamageDelegate;
 
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const;
 	virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) override;
@@ -87,7 +87,7 @@ protected:
 	virtual void InitAbilityActorInfo();
 	void ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const;
 	virtual void InitializeDefaultAttributes() const;
-	void AddCharacterAbilities();
+	void AddCharacterAbilities() const;
 	void Dissolve();
 	virtual void StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
 

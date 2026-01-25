@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Gameframework/ProjectileMovementComponent.h"
 
+// get description for current level
 FString UAuraFireBolt::GetDescription(int32 Level)
 {
 	// get scaled damage from curve table for a given level
@@ -35,6 +36,7 @@ FString UAuraFireBolt::GetDescription(int32 Level)
 	}
 }
 
+// get description for next level
 FString UAuraFireBolt::GetNextLevelDescription(int32 Level)
 {
 	const int32 ScaledDamage = Damage.GetValueAtLevel(Level);
@@ -50,6 +52,7 @@ FString UAuraFireBolt::GetNextLevelDescription(int32 Level)
 								FMath::Min(Level, this->MaxProjectiles), ScaledDamage, Level, ManaCost, Cooldown);
 }
 
+// spawn projectiles based on ability level
 void UAuraFireBolt::SpawnProjectiles(const FVector& ProjectileTargetLocation, const FGameplayTag& SocketTag, AActor* HomingTarget, bool bPitchOverride, float Pitch)
 {
 	const int32 NumProjectiles = FMath::Min(this->MaxProjectiles, GetAbilityLevel());

@@ -7,6 +7,7 @@
 #include "AuraAbilityTypes.h"
 #include "Kismet/GameplayStatics.h"
 
+// capture the relevant parameters to calculate
 UExecCalc_Damage::UExecCalc_Damage()
 {
 	RelevantAttributesToCapture.Add(DamageStatics().BlockChanceDef);
@@ -21,6 +22,7 @@ UExecCalc_Damage::UExecCalc_Damage()
 	RelevantAttributesToCapture.Add(DamageStatics().PhysicalResistanceDef);
 }
 
+// calculate the exact damage that an actor will receive
 void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
 	const UAbilitySystemComponent* SourceASC = ExecutionParams.GetSourceAbilitySystemComponent();
@@ -140,7 +142,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	const float EffectiveArmor = TargetArmor * (100 - SourceArmorPenetration * ArmorPenetrationCoeff) / 100.f;
 	Damage *= (100 - EffectiveArmor / EffectiveArmorCoeff) / 100.f;
 
-	// 6. Check for Passive Spell gameplaytags and adjust damage output
+	// 6. Check for Passive Spell gameplaytags and adjust damage output (not implemented here)
 
 	// 5. apply critical hits
 	const float EffectiveCritChance = SourceCritChance - TargetCritResistance * EffectiveCritCoeff;
@@ -152,6 +154,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(UAuraAttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Additive, Damage));
 }
 
+// check for Debuff and apply effect to target
 void UExecCalc_Damage::DetermineDebuff(const FGameplayEffectSpec& Spec, const FGameplayEffectCustomExecutionParameters& ExecutionParams, FAggregatorEvaluateParameters& EvaluationParameters) const
 {
 	const FAuraGameplayTags& GameplayTags = FAuraGameplayTags::Get();

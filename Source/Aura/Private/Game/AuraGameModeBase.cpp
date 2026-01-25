@@ -10,9 +10,10 @@
 #include "AuraLogChannels.h"
 #include "GameFramework/Character.h"
 
-void AAuraGameModeBase::SaveSlotData(UMVVM_LoadSlot* LoadSlot, int32 SlotIndex)
+// save initial game data when slot is being created
+void AAuraGameModeBase::SaveSlotData(UMVVM_LoadSlot* LoadSlot, int32 SlotIndex) const
 {
-	if (UGameplayStatics::DoesSaveGameExist(LoadSlot->GetLoadSlotName(), SlotIndex))	UGameplayStatics::DeleteGameInSlot(LoadSlot->GetLoadSlotName(), SlotIndex);
+	if (UGameplayStatics::DoesSaveGameExist(LoadSlot->GetLoadSlotName(), SlotIndex)) UGameplayStatics::DeleteGameInSlot(LoadSlot->GetLoadSlotName(), SlotIndex);
 
 	USaveGame* SaveGameObject = UGameplayStatics::CreateSaveGameObject(this->LoadMenuSaveGameClass);
 	ULoadMenuSaveGame* LoadMenuSaveGame = Cast<ULoadMenuSaveGame>(SaveGameObject);
@@ -25,6 +26,7 @@ void AAuraGameModeBase::SaveSlotData(UMVVM_LoadSlot* LoadSlot, int32 SlotIndex)
 	UGameplayStatics::SaveGameToSlot(LoadMenuSaveGame, LoadSlot->GetLoadSlotName(), SlotIndex);
 }
 
+// load data from slot for given slot index (slot name can be idsentical for multiple slots)
 ULoadMenuSaveGame* AAuraGameModeBase::GetSaveSlotData(const FString& SlotName, int32 SlotIndex) const
 {
 	USaveGame* SaveGameObject = nullptr;
@@ -41,19 +43,19 @@ ULoadMenuSaveGame* AAuraGameModeBase::GetSaveSlotData(const FString& SlotName, i
 	return Cast<ULoadMenuSaveGame>(SaveGameObject);
 }
 
+// delete unwanted slot and erase all data for it
 void AAuraGameModeBase::DeleteSlot(const FString& SlotName, int32 SlotIndex)
 {
-	if (UGameplayStatics::DoesSaveGameExist(SlotName, SlotIndex))	UGameplayStatics::DeleteGameInSlot(SlotName, SlotIndex);
+	if (UGameplayStatics::DoesSaveGameExist(SlotName, SlotIndex)) UGameplayStatics::DeleteGameInSlot(SlotName, SlotIndex);
 }
 
-void AAuraGameModeBase::TravelToMap(UMVVM_LoadSlot* Slot)
+// travel to specifed map (either default map or map from saved game data)
+void AAuraGameModeBase::TravelToMap(const UMVVM_LoadSlot* Slot)
 {
-	const FString SlotName = Slot->GetLoadSlotName();
-	const int32 SlotIndex = Slot->GetSlotIndex();
-
 	UGameplayStatics::OpenLevelBySoftObjectPtr(Slot, this->Maps.FindChecked(Slot->GetMapName()));
 }
 
+// choose player start when loading map (save game location, map entrance or default start)
 AActor* AAuraGameModeBase::ChoosePlayerStart_Implementation(AController* Player)
 {
 	UAuraGameInstance* GameInstance = Cast<UAuraGameInstance>(GetGameInstance());
@@ -77,6 +79,7 @@ AActor* AAuraGameModeBase::ChoosePlayerStart_Implementation(AController* Player)
 	return nullptr;
 }
 
+// get data for slot widget
 ULoadMenuSaveGame* AAuraGameModeBase::RetrieveInGameSaveData()
 {
 	UAuraGameInstance* GameInstance = Cast<UAuraGameInstance>(GetGameInstance());
@@ -86,7 +89,8 @@ ULoadMenuSaveGame* AAuraGameModeBase::RetrieveInGameSaveData()
 	return this->GetSaveSlotData(InGameLoadSlotName, InGameLoadSlotIndex);
 }
 
-void AAuraGameModeBase::SaveInGameProgressData(ULoadMenuSaveGame* SaveObject)
+// update save game data before saving to disk
+void AAuraGameModeBase::SaveInGameProgressData(ULoadMenuSaveGame* SaveObject) const
 {
 	UAuraGameInstance* GameInstance = Cast<UAuraGameInstance>(GetGameInstance());
 	const FString InGameLoadSlotName = GameInstance->LoadSlotName;
@@ -96,6 +100,7 @@ void AAuraGameModeBase::SaveInGameProgressData(ULoadMenuSaveGame* SaveObject)
 	UGameplayStatics::SaveGameToSlot(SaveObject, InGameLoadSlotName, InGameLoadSlotIndex);
 }
 
+// save world status (map name, actors in the world, etc.)
 void AAuraGameModeBase::SaveWorldState(UWorld* World, const FString& DestinationMapAssetName) const
 {
 	FString WorldName = World->GetMapName();
@@ -148,6 +153,7 @@ void AAuraGameModeBase::SaveWorldState(UWorld* World, const FString& Destination
 	}
 }
 
+// load world state back from disk
 void AAuraGameModeBase::LoadWorldState(UWorld* World) const
 {
 	FString WorldName = World->GetMapName();
@@ -188,6 +194,7 @@ void AAuraGameModeBase::LoadWorldState(UWorld* World) const
 	}
 }
 
+// convert map asset name (technical name) to display name for user
 FString AAuraGameModeBase::GetMapNameByMapAssetName(const FString& MapAssetName) const
 {
 	for (TTuple<FString, TSoftObjectPtr<UWorld>> Map : this->Maps)
@@ -198,7 +205,8 @@ FString AAuraGameModeBase::GetMapNameByMapAssetName(const FString& MapAssetName)
 	return FString();
 }
 
-void AAuraGameModeBase::PlayerDied(ACharacter* DeadCharacter)
+// callback to event of player died
+void AAuraGameModeBase::PlayerDied(const ACharacter* DeadCharacter)
 {
 	ULoadMenuSaveGame* SaveGame = this->RetrieveInGameSaveData();
 	if (!IsValid(SaveGame)) return;
@@ -206,6 +214,7 @@ void AAuraGameModeBase::PlayerDied(ACharacter* DeadCharacter)
 	UGameplayStatics::OpenLevel(DeadCharacter, FName(SaveGame->MapAssetName));
 }
 
+// add starting map to map array
 void AAuraGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();

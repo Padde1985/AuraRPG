@@ -2,6 +2,7 @@
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 
+// activate passive effect for abilities (siphons) and bind to delegate for deactivation
 void UAuraPassiveAbilityBase::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
@@ -12,9 +13,9 @@ void UAuraPassiveAbilityBase::ActivateAbility(const FGameplayAbilitySpecHandle H
 	}
 }
 
+// callback for deactivation 
 void UAuraPassiveAbilityBase::ReceiveDeactivate(const FGameplayTag& AbilityTag)
 {
-	//if (AbilityTags.HasTagExact(AbilityTag))
 	if (GetAssetTags().HasTagExact(AbilityTag))
 	{
 		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, true);

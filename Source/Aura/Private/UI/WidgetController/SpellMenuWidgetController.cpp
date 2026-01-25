@@ -3,6 +3,7 @@
 #include "AbilitySystem/Data/AbilityInfo.h"
 #include "Player/AuraPlayerState.h"
 
+// callback for selecting a globe in the spell menu (not enhancing level or equipping)
 void USpellMenuWidgetController::SpellGlobeSelected(const FGameplayTag& AbilityTag)
 {
 	const FGameplayTag SelectedAbilityTpe = AbilityInfo->FindAbilityInfoForTag(AbilityTag).AbilityType;
@@ -38,11 +39,13 @@ void USpellMenuWidgetController::SpellGlobeSelected(const FGameplayTag& AbilityT
 	this->SpellGlobeSelectedDelegate.Broadcast(bEnableSPButton, bEnableEquipButton, Description, NextLevelDescription);
 }
 
+// call function to spend points on abilities
 void USpellMenuWidgetController::SpendPointButtonPressed()
 {
 	GetAuraASC()->ServerSpendSpellPoint(this->SelectedAbility.Ability);
 }
 
+// a selected globe was deselected (selected a different one or just cleared selection)
 void USpellMenuWidgetController::GlobeDeselect()
 {
 	const FGameplayTag SelectedAbilityTpe = AbilityInfo->FindAbilityInfoForTag(this->SelectedAbility.Ability).AbilityType;
@@ -54,6 +57,7 @@ void USpellMenuWidgetController::GlobeDeselect()
 	this->SpellGlobeSelectedDelegate.Broadcast(false, false, FString(), FString());
 }
 
+// callback for equipping an ability
 void USpellMenuWidgetController::EquippedButtonPressed()
 {
 	const FGameplayTag AbilityType = AbilityInfo->FindAbilityInfoForTag(this->SelectedAbility.Ability).AbilityType;
@@ -67,6 +71,7 @@ void USpellMenuWidgetController::EquippedButtonPressed()
 	}
 }
 
+// callback fro equipping an ability to the spells row in the lower section of the menu (and update the HUD as well)
 void USpellMenuWidgetController::SpellGlobeRowPressed(const FGameplayTag& SlotTag, const FGameplayTag& AbilityType)
 {
 	if (!this->bWaitingForEquippedSelection) return;
@@ -78,6 +83,7 @@ void USpellMenuWidgetController::SpellGlobeRowPressed(const FGameplayTag& SlotTa
 	GetAuraASC()->ServerEquipAbility(this->SelectedAbility.Ability, SlotTag);
 }
 
+// callback to actually equip the ability and set the tags
 void USpellMenuWidgetController::OnAbilityEquipped(const FGameplayTag& AbilityTag, const FGameplayTag& Status, const FGameplayTag& Slot, const FGameplayTag& PreviousSlot)
 {
 	const FAuraGameplayTags GameplayTags = FAuraGameplayTags::Get();
@@ -101,12 +107,14 @@ void USpellMenuWidgetController::OnAbilityEquipped(const FGameplayTag& AbilityTa
 	this->GlobeDeselect();
 }
 
+// broadcast of the initial values before anything changed
 void USpellMenuWidgetController::BroadcastInitialValues()
 {
 	BroadcastAbilityInfo();
 	this->SpellPointsChanged.Broadcast(GetAuraPS()->GetSP());
 }
 
+// bind all callbacks
 void USpellMenuWidgetController::BindCallbacksToDependencies()
 {
 	GetAuraASC()->StatusChanged.AddLambda(
@@ -151,6 +159,7 @@ void USpellMenuWidgetController::BindCallbacksToDependencies()
 	);
 }
 
+// enable buttons based on status and skill points
 void USpellMenuWidgetController::EnableButtons(const FGameplayTag& Status, int32 SP, bool& bShouldEnableSPButton, bool& bShouldEnableEquipButton)
 {
 	const FAuraGameplayTags Tags = FAuraGameplayTags::Get();

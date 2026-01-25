@@ -1,5 +1,6 @@
 #include "AbilitySystem/Abilities/AuraSummonAbility.h"
 
+// get location where minions will spawn
 TArray<FVector> UAuraSummonAbility::GetSpawnLocations()
 {
 	TArray<FVector> SpawnLocations;
@@ -28,6 +29,7 @@ TArray<FVector> UAuraSummonAbility::GetSpawnLocations()
 	return SpawnLocations;
 }
 
+// radnomize the spawned minion's classes
 TSubclassOf<APawn> UAuraSummonAbility::GetRandomMinionClass()
 {
 	const int32 Selection = FMath::RandRange(0, this->MinionClasses.Num() - 1);

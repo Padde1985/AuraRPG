@@ -1,5 +1,6 @@
 #include "AbilitySystem/Data/LevelInfo.h"
 
+// check curve for level for current XP
 int32 ULevelInfo::FindLevelForXP(int32 XP) const
 {
 	for (FAuraLevelInfo Info : this->LevelInformation)
@@ -10,6 +11,7 @@ int32 ULevelInfo::FindLevelForXP(int32 XP) const
 	return 1;
 }
 
+// get level information and get fallback for level not customized
 FAuraLevelInfo ULevelInfo::GetInfoForLevel(int32 Level) const
 {
 	// try to find exact Level

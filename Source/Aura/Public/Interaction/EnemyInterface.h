@@ -11,9 +11,7 @@ class UEnemyInterface : public UInterface
 	GENERATED_BODY()
 };
 
-/**
- * 
- */
+// enemy specific functionality, is implemented in all enemy classes
 class AURA_API IEnemyInterface
 {
 	GENERATED_BODY()

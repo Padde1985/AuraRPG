@@ -68,6 +68,7 @@ int32 AAuraCharacter::GetLevel_Implementation()
 	return AuraPlayerState->GetPlayerLevel();
 }
 
+// earn XP and call function on player state
 void AAuraCharacter::AddToXP_Implementation(int32 InXP)
 {
 	AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
@@ -75,11 +76,13 @@ void AAuraCharacter::AddToXP_Implementation(int32 InXP)
 	AuraPlayerState->AddToXP(InXP);
 }
 
+// level up and spawn particle system for leveling up
 void AAuraCharacter::LevelUp_Implementation()
 {
 	this->MulticastLevelUpParticles();
 }
 
+// get current player XP
 int32 AAuraCharacter::GetXP_Implementation() const
 {
 	const AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
@@ -87,6 +90,7 @@ int32 AAuraCharacter::GetXP_Implementation() const
 	return AuraPlayerState->GetXP();	
 }
 
+// map current XP to player level (will get the steps from the Data set)
 int32 AAuraCharacter::FindLevelForXP_Implementation(int32 InXP) const
 {
 	const AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
@@ -94,6 +98,7 @@ int32 AAuraCharacter::FindLevelForXP_Implementation(int32 InXP) const
 	return AuraPlayerState->LevelInfo->FindLevelForXP(InXP);
 }
 
+// gets amount of attribute points for the current levelup
 int32 AAuraCharacter::GetAttributePointsReward_Implementation(int32 Level) const
 {
 	const AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
@@ -101,6 +106,7 @@ int32 AAuraCharacter::GetAttributePointsReward_Implementation(int32 Level) const
 	return AuraPlayerState->LevelInfo->LevelInformation[Level].AttributePoints;
 }
 
+// get the AP
 int32 AAuraCharacter::GetAttributePoints_Implementation() const
 {
 	const AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
@@ -108,6 +114,7 @@ int32 AAuraCharacter::GetAttributePoints_Implementation() const
 	return AuraPlayerState->GetAP();
 }
 
+// gets amount of spell points for the current levelup
 int32 AAuraCharacter::GetSpellPointsReward_Implementation(int32 Level) const
 {
 	const AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
@@ -115,6 +122,7 @@ int32 AAuraCharacter::GetSpellPointsReward_Implementation(int32 Level) const
 	return AuraPlayerState->LevelInfo->LevelInformation[Level].SpellPoints;
 }
 
+// get SP
 int32 AAuraCharacter::GetSpellPoints_Implementation() const
 {
 	const AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
@@ -122,6 +130,7 @@ int32 AAuraCharacter::GetSpellPoints_Implementation() const
 	return AuraPlayerState->GetSP();
 }
 
+// add XP to current pool
 void AAuraCharacter::AddToAttributePoints_Implementation(int32 InPoints)
 {
 	AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
@@ -129,6 +138,7 @@ void AAuraCharacter::AddToAttributePoints_Implementation(int32 InPoints)
 	AuraPlayerState->AddToAP(InPoints);
 }
 
+// add to current SP
 void AAuraCharacter::AddToSpellPoints_Implementation(int32 InPoints)
 {
 	AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
@@ -136,6 +146,7 @@ void AAuraCharacter::AddToSpellPoints_Implementation(int32 InPoints)
 	AuraPlayerState->AddToSP(InPoints);
 }
 
+// level up and unlock new abilities
 void AAuraCharacter::AddToPlayerLevel_Implementation(int32 inPlayerLevel)
 {
 	AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
@@ -148,6 +159,7 @@ void AAuraCharacter::AddToPlayerLevel_Implementation(int32 inPlayerLevel)
 	}
 }
 
+// show the magical circle
 void AAuraCharacter::ShowMagicCircle_Implementation(UMaterialInterface* DecalMaterial)
 {
 	if (AAuraPlayerController* AuraPlayerController = Cast<AAuraPlayerController>(GetController()))
@@ -157,6 +169,7 @@ void AAuraCharacter::ShowMagicCircle_Implementation(UMaterialInterface* DecalMat
 	}
 }
 
+// hide the magical circle
 void AAuraCharacter::HideMagicCircle_Implementation()
 {
 	if (AAuraPlayerController* AuraPlayerController = Cast<AAuraPlayerController>(GetController()))
@@ -166,6 +179,7 @@ void AAuraCharacter::HideMagicCircle_Implementation()
 	}
 }
 
+// save the progress on a save spot or map entrance
 void AAuraCharacter::SaveProgress_Implementation(const FName& CheckpointTag)
 {
 	if (AAuraGameModeBase* GameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this)))
@@ -215,6 +229,7 @@ void AAuraCharacter::SaveProgress_Implementation(const FName& CheckpointTag)
 	}
 }
 
+// player death
 void AAuraCharacter::Die(const FVector& DeathImpulse)
 {
 	Super::Die(DeathImpulse);
@@ -231,6 +246,7 @@ void AAuraCharacter::Die(const FVector& DeathImpulse)
 	this->CameraComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 }
 
+// spawn level up Niagara system
 void AAuraCharacter::MulticastLevelUpParticles_Implementation() const
 {
 	if (IsValid(this->LevelUpNiagaraComponent))
@@ -274,6 +290,7 @@ void AAuraCharacter::InitAbilityActorInfo()
 	}
 }
 
+// replication function for being stunned which prevents movement
 void AAuraCharacter::OnRep_Stunned()
 {
 	if (UAuraAbilitySystemComponent* ASC = Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent))
@@ -297,6 +314,7 @@ void AAuraCharacter::OnRep_Stunned()
 	}
 }
 
+// replication function for burn debuff (Niagara system only)
 void AAuraCharacter::OnRep_Burned()
 {
 	if (bIsBurned)
@@ -309,6 +327,7 @@ void AAuraCharacter::OnRep_Burned()
 	}
 }
 
+// load progress when starting a game from a slot or coming back from a lower map to a previously visited map
 void AAuraCharacter::LoadProgress()
 {
 	if (AAuraGameModeBase* GameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this)))

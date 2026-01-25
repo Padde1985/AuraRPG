@@ -4,14 +4,15 @@
 #include "Interaction/CombatInterface.h"
 #include "AuraGameplayTags.h"
 
+// passive effect will be activated by caller
 UPassiveNiagaraComponent::UPassiveNiagaraComponent()
 {
 	bAutoActivate = false;
 }
 
+// bind callbacks and handle activation when equipped right away
 void UPassiveNiagaraComponent::BeginPlay()
 {
-
 	Super::BeginPlay();
 
 	if (UAuraAbilitySystemComponent* AuraASC = Cast<UAuraAbilitySystemComponent>(UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetOwner())))
@@ -32,6 +33,7 @@ void UPassiveNiagaraComponent::BeginPlay()
 	}
 }
 
+// when passive effect activtes, handle callback
 void UPassiveNiagaraComponent::OnPassiveActivate(const FGameplayTag& AbilityTag, bool bActivate)
 {
 	if (AbilityTag.MatchesTagExact(this->PassiveSpellTag))
@@ -47,10 +49,10 @@ void UPassiveNiagaraComponent::OnPassiveActivate(const FGameplayTag& AbilityTag,
 	}
 }
 
+// handle callback for equipping an passive effect
 void UPassiveNiagaraComponent::ActivateIfEquipped(UAuraAbilitySystemComponent* AuraASC)
 {
-	const bool bStartupAbilitiesActivated = AuraASC->bStartupAbilitiesGiven;
-	if (bStartupAbilitiesActivated)
+	if (const bool bStartupAbilitiesActivated = AuraASC->bStartupAbilitiesGiven)
 	{
 		if (AuraASC->GetStatusFromAbilityTag(PassiveSpellTag) == FAuraGameplayTags::Get().Abilities_Status_Equipped)
 		{

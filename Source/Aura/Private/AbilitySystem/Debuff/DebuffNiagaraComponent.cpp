@@ -3,18 +3,19 @@
 #include "AbilitySystemComponent.h"
 #include "Interaction/CombatInterface.h"
 
+// Niagara component has to wait for activation
 UDebuffNiagaraComponent::UDebuffNiagaraComponent()
 {
 	bAutoActivate = false;
 }
 
+// bind callbacks and set basic information
 void UDebuffNiagaraComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
 	ICombatInterface* CombatInterface = Cast<ICombatInterface>(GetOwner());
-	UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetOwner());
-	if (ASC)
+	if (UAbilitySystemComponent* ASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetOwner()))
 	{
 		ASC->RegisterGameplayTagEvent(this->DebuffTag, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &UDebuffNiagaraComponent::DebuffTagChanged);
 	}
@@ -33,6 +34,7 @@ void UDebuffNiagaraComponent::BeginPlay()
 	}
 }
 
+// debuff changed, either activate or deactivate the debuff
 void UDebuffNiagaraComponent::DebuffTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
 {
 	const bool bOwnerValid = IsValid(GetOwner());
@@ -48,6 +50,7 @@ void UDebuffNiagaraComponent::DebuffTagChanged(const FGameplayTag CallbackTag, i
 	}
 }
 
+// deactivate all debuffs when actor is dead
 void UDebuffNiagaraComponent::OnOwnerDeath(AActor* DeadActor)
 {
 	Deactivate();

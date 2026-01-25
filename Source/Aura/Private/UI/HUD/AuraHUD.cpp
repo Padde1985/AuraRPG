@@ -29,7 +29,7 @@ UAttributeMenuWidgetController* AAuraHUD::GetAttributeMenuWidgetController(const
 	}
 	return this->AttributeMenuWidgetController;
 }
-
+// return Widget controller for Spell Menu
 USpellMenuWidgetController* AAuraHUD::GetSpellMenuWidgetController(const FWidgetControllerParams& WCParams)
 {
 	if (this->SpellMenuWidgetController == nullptr)

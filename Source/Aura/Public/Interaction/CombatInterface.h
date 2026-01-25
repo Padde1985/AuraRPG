@@ -32,6 +32,7 @@ class UCombatInterface : public UInterface
 	GENERATED_BODY()
 };
 
+// interface for all combat related functionality, is implemented in all character classes (player and enemies)
 class AURA_API ICombatInterface
 {
 	GENERATED_BODY()

@@ -11,6 +11,7 @@ class UPlayerInterface : public UInterface
 	GENERATED_BODY()
 };
 
+// interface for all playedr specific functions, only implemented in player class
 class AURA_API IPlayerInterface
 {
 	GENERATED_BODY()

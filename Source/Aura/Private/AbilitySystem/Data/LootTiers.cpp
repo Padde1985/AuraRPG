@@ -1,5 +1,6 @@
 #include "AbilitySystem/Data/LootTiers.h"
 
+// check what items to spawn and how many
 TArray<FLootItem> ULootTiers::GetLootItems() const
 {
 	TArray<FLootItem> ReturnItems;

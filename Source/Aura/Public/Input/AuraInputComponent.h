@@ -14,6 +14,7 @@ public:
 	template<class UserClass, typename PressedFuncType, typename ReleasedFuncType, typename HeldFuncType> void BindAbilityActions(const UAuraInputConfig* InputConfig, UserClass* Object, PressedFuncType PressedFunc, ReleasedFuncType ReleasedFunc, HeldFuncType HeldFunc);
 };
 
+// binds all three types of action (pressed, held, and released) for each ability
 template<class UserClass, typename PressedFuncType, typename ReleasedFuncType, typename HeldFuncType>
 inline void UAuraInputComponent::BindAbilityActions(const UAuraInputConfig* InputConfig, UserClass* Object, PressedFuncType PressedFunc, ReleasedFuncType ReleasedFunc, HeldFuncType HeldFunc)
 {

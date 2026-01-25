@@ -6,12 +6,14 @@
 #include "GameplayCueManager.h"
 #include "AuraGameplayTags.h"
 
+// the fireball does not tick and has to be activated by the ability
 AAuraFireBall::AAuraFireBall()
 {
 	ProjectileMovement->PrimaryComponentTick.bCanEverTick = false;
 	ProjectileMovement->SetAutoActivate(false);
 }
 
+// outgoing timeline will be activated for projectile movement
 void AAuraFireBall::BeginPlay()
 {
 	Super::BeginPlay();
@@ -19,6 +21,7 @@ void AAuraFireBall::BeginPlay()
 	this->StartOutgoingTimeline();
 }
 
+// callback for overlapping with target
 void AAuraFireBall::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (!IsValidOverlap(OtherActor)) return;
@@ -37,6 +40,7 @@ void AAuraFireBall::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AA
 	}
 }
 
+// if fireball hit target start gameplay cue
 void AAuraFireBall::OnHit()
 {
 	// execute local GameplayCue
